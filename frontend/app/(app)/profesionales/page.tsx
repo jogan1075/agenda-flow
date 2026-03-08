@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
@@ -23,6 +24,7 @@ type ProfessionalForm = {
   fullName: string;
   email: string;
   phone: string;
+  serviceId: string;
   commissionPercent: string;
   photoUrl: string;
   schedulePreset: 'part_time' | 'full_time' | 'weekends';
@@ -96,10 +98,12 @@ export default function ProfesionalesPage() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState('');
   const [message, setMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
   const [form, setForm] = useState<ProfessionalForm>({
     fullName: '',
     email: '',
     phone: '',
+    serviceId: '',
     commissionPercent: '0',
     photoUrl: '',
     schedulePreset: 'part_time',
@@ -110,6 +114,11 @@ export default function ProfesionalesPage() {
   const professionalsQuery = useQuery({
     queryKey: ['professionals', businessId],
     queryFn: () => api.listProfessionals(businessId),
+    enabled: !!businessId,
+  });
+  const servicesQuery = useQuery({
+    queryKey: ['services', businessId],
+    queryFn: () => api.listServices(businessId),
     enabled: !!businessId,
   });
 
@@ -130,7 +139,7 @@ export default function ProfesionalesPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo crear el profesional: ${detail}`);
+      setErrorDialogMessage(`No se pudo crear el profesional: ${detail}`);
     },
   });
 
@@ -144,7 +153,7 @@ export default function ProfesionalesPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo actualizar el profesional: ${detail}`);
+      setErrorDialogMessage(`No se pudo actualizar el profesional: ${detail}`);
     },
   });
 
@@ -157,6 +166,10 @@ export default function ProfesionalesPage() {
   });
 
   const selectedCount = useMemo(() => weeklySchedule.filter((day) => day.enabled).length, [weeklySchedule]);
+  const serviceNameById = useMemo(
+    () => new Map((servicesQuery.data ?? []).map((service) => [String(service._id), String(service.name)])),
+    [servicesQuery.data],
+  );
   const isBeautyBusiness = useMemo(() => {
     const business = businessQuery.data as Record<string, unknown> | undefined;
     return String(business?.businessCategory ?? '') === 'ESTETICA_Y_BELLEZA';
@@ -168,6 +181,7 @@ export default function ProfesionalesPage() {
       fullName: '',
       email: '',
       phone: '',
+      serviceId: '',
       commissionPercent: '0',
       photoUrl: '',
       schedulePreset: 'part_time',
@@ -194,7 +208,11 @@ export default function ProfesionalesPage() {
 
     const fullName = form.fullName.trim();
     if (!fullName) {
-      setMessage('El nombre del profesional es obligatorio.');
+      setErrorDialogMessage('El nombre del profesional es obligatorio.');
+      return;
+    }
+    if (!form.serviceId) {
+      setErrorDialogMessage('Selecciona al menos un servicio para el profesional.');
       return;
     }
 
@@ -207,7 +225,7 @@ export default function ProfesionalesPage() {
       commissionPercent: isBeautyBusiness ? Number(form.commissionPercent || '0') : 0,
       weeklySchedule: normalizeScheduleForPayload(weeklySchedule),
       isActive: true,
-      serviceIds: [],
+      serviceIds: [form.serviceId],
     };
 
     if (editingId) {
@@ -242,6 +260,7 @@ export default function ProfesionalesPage() {
       fullName: String(professional.fullName ?? ''),
       email: String(professional.email ?? ''),
       phone: String(professional.phone ?? ''),
+      serviceId: String((professional.serviceIds as Array<unknown> | undefined)?.[0] ?? ''),
       commissionPercent: String(professional.commissionPercent ?? '0'),
       photoUrl: String(professional.photoUrl ?? ''),
       schedulePreset: 'part_time',
@@ -261,7 +280,7 @@ export default function ProfesionalesPage() {
         }
       />
       <Card>
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-5">
           <Input
             placeholder="Nombre"
             value={form.fullName}
@@ -278,6 +297,17 @@ export default function ProfesionalesPage() {
             value={form.phone}
             onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
           />
+          <Select
+            value={form.serviceId}
+            onChange={(event) => setForm((prev) => ({ ...prev, serviceId: event.target.value }))}
+          >
+            <option value="">Servicio que presta</option>
+            {(servicesQuery.data ?? []).map((service) => (
+              <option key={String(service._id)} value={String(service._id)}>
+                {String(service.name)}
+              </option>
+            ))}
+          </Select>
           {isBeautyBusiness ? (
             <Input
               type="number"
@@ -296,26 +326,26 @@ export default function ProfesionalesPage() {
               <span className="font-medium">35%</span> de comision.
             </p>
 
-            <div className="mt-3 grid gap-3 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <label className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-                  Seleccionar foto profesional
-                  <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
-                </label>
-                <p className="mt-1 truncate text-xs text-zinc-500">
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <label className="group relative h-24 w-24 cursor-pointer overflow-hidden rounded-full border border-zinc-300 bg-zinc-50">
+                {form.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center px-2 text-center text-[11px] text-zinc-500">
+                    Subir foto
+                  </div>
+                )}
+                <div className="absolute inset-0 hidden items-center justify-center bg-black/40 text-[11px] font-medium text-white group-hover:flex">
+                  Cambiar
+                </div>
+                <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
+              </label>
+              <div>
+                <p className="text-xs text-zinc-500">Haz click en la foto para subir o cambiar imagen.</p>
+                <p className="truncate text-xs text-zinc-500">
                   {selectedPhotoName || (form.photoUrl ? 'Imagen cargada' : 'Sin archivo seleccionado')}
                 </p>
-              </div>
-              <div className="md:col-span-2 flex items-center gap-3">
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-zinc-200 bg-zinc-50">
-                  {form.photoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">Sin foto</div>
-                  )}
-                </div>
-                <p className="text-xs text-zinc-500">La fotografia se guarda junto al perfil.</p>
               </div>
             </div>
           </>
@@ -408,6 +438,7 @@ export default function ProfesionalesPage() {
             <thead className="text-left text-zinc-500">
               <tr>
                 <th className="py-2">Profesional</th>
+                <th>Servicio</th>
                 <th>Comision</th>
                 <th>Horario</th>
                 <th>Acciones</th>
@@ -436,6 +467,11 @@ export default function ProfesionalesPage() {
                       </div>
                     </div>
                   </td>
+                  <td>
+                    {((professional.serviceIds as Array<unknown> | undefined) ?? [])
+                      .map((serviceId) => serviceNameById.get(String(serviceId)) ?? String(serviceId))
+                      .join(', ') || '-'}
+                  </td>
                   <td>{String(professional.commissionPercent ?? 0)}%</td>
                   <td className="max-w-xl text-xs text-zinc-600">{scheduleText(professional.weeklySchedule)}</td>
                   <td>
@@ -459,6 +495,7 @@ export default function ProfesionalesPage() {
           </table>
         </div>
       </Card>
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }

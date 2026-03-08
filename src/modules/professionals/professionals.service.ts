@@ -20,8 +20,12 @@ export class ProfessionalsService {
     return this.professionalModel.create(payload);
   }
 
-  listByBusiness(businessId: string) {
-    return this.professionalModel.find({ businessId, isActive: true }).sort({ fullName: 1 });
+  listByBusiness(businessId: string, serviceId?: string) {
+    const query: Record<string, unknown> = { businessId, isActive: true };
+    if (serviceId) {
+      query.serviceIds = serviceId;
+    }
+    return this.professionalModel.find(query).sort({ fullName: 1 });
   }
 
   async update(id: string, dto: UpdateProfessionalDto) {

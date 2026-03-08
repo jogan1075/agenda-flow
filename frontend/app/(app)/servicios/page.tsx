@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
@@ -57,6 +58,7 @@ export default function ServiciosPage() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState('');
   const [message, setMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
 
   const servicesQuery = useQuery({
     queryKey: ['services', businessId],
@@ -112,6 +114,10 @@ export default function ServiciosPage() {
       await refresh();
       setMessage('Servicio creado correctamente.');
     },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo crear el servicio: ${detail}`);
+    },
   });
 
   const updateMutation = useMutation({
@@ -123,6 +129,10 @@ export default function ServiciosPage() {
       setEditingId('');
       setMessage('Servicio actualizado correctamente.');
     },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo actualizar el servicio: ${detail}`);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -131,6 +141,10 @@ export default function ServiciosPage() {
       removeServiceFromCache(id);
       await refresh();
       setMessage('Servicio eliminado correctamente.');
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo eliminar el servicio: ${detail}`);
     },
   });
 
@@ -232,6 +246,7 @@ export default function ServiciosPage() {
           </tbody>
         </table>
       </Card>
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }

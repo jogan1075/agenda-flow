@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { SectionHeader } from '@/components/section-header';
 import { ApiError, api } from '@/lib/api';
@@ -21,6 +22,7 @@ export default function ClientesPage() {
   const [search, setSearch] = useState('');
   const [editingId, setEditingId] = useState('');
   const [message, setMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
   const queryClient = useQueryClient();
 
   const customersQuery = useQuery({
@@ -63,7 +65,7 @@ export default function ClientesPage() {
     },
     onError: (error) => {
       const msg = error instanceof ApiError ? error.message : 'No se pudo crear el cliente.';
-      setMessage(msg);
+      setErrorDialogMessage(msg);
     },
   });
 
@@ -78,7 +80,7 @@ export default function ClientesPage() {
     },
     onError: (error) => {
       const msg = error instanceof ApiError ? error.message : 'No se pudo actualizar el cliente.';
-      setMessage(msg);
+      setErrorDialogMessage(msg);
     },
   });
 
@@ -91,7 +93,7 @@ export default function ClientesPage() {
     },
     onError: (error) => {
       const msg = error instanceof ApiError ? error.message : 'No se pudo eliminar el cliente.';
-      setMessage(msg);
+      setErrorDialogMessage(msg);
     },
   });
 
@@ -112,7 +114,7 @@ export default function ClientesPage() {
             const email = values.email.trim();
 
             if (!fullName || !phone) {
-              setMessage('Nombre y teléfono son obligatorios.');
+              setErrorDialogMessage('Nombre y teléfono son obligatorios.');
               return;
             }
 
@@ -204,6 +206,7 @@ export default function ClientesPage() {
           </table>
         </div>
       </Card>
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }

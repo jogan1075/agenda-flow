@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsBoolean,
   IsEmail,
@@ -47,9 +48,10 @@ export class CreateProfessionalDto {
   @IsString()
   photoUrl?: string;
 
-  @IsOptional()
   @IsArray()
-  serviceIds?: string[];
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  serviceIds: string[];
 
   @IsOptional()
   @IsNumber()

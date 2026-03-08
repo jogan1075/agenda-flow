@@ -117,6 +117,10 @@ export default function ReservasPage() {
     () => (servicesQuery.data ?? []).find((service) => String(service._id) === form.serviceId),
     [servicesQuery.data, form.serviceId],
   );
+  const serviceNameById = useMemo(
+    () => new Map((servicesQuery.data ?? []).map((service) => [String(service._id), String(service.name)])),
+    [servicesQuery.data],
+  );
 
   const selectedProfessional = useMemo(
     () => (professionalsQuery.data ?? []).find((professional) => String(professional._id) === form.professionalId),
@@ -249,18 +253,11 @@ export default function ReservasPage() {
         </div>
 
         <Card className="space-y-3">
-          <div className="grid gap-3 md:grid-cols-2">
-            <Input
-              placeholder="Business ID"
-              value={form.businessId}
-              onChange={(event) => setForm((prev) => ({ ...prev, businessId: event.target.value }))}
-            />
-            <Input
-              placeholder="Sucursal (informativo)"
-              value={String((businessQuery.data as Record<string, unknown> | undefined)?.name ?? '')}
-              disabled
-            />
-          </div>
+          <Input
+            placeholder="Sucursal (informativo)"
+            value={String((businessQuery.data as Record<string, unknown> | undefined)?.name ?? '')}
+            disabled
+          />
         </Card>
 
         <Card className="space-y-3">
@@ -291,6 +288,11 @@ export default function ReservasPage() {
                     )}
                   </div>
                   <p className={cn('font-medium', isActive ? 'text-white' : 'text-zinc-900')}>{String(professional.fullName)}</p>
+                  <p className={cn('mt-1 text-xs', isActive ? 'text-zinc-200' : 'text-zinc-500')}>
+                    {((professional.serviceIds as Array<unknown> | undefined) ?? [])
+                      .map((serviceId) => serviceNameById.get(String(serviceId)) ?? String(serviceId))
+                      .join(', ') || 'Sin servicios asociados'}
+                  </p>
                 </button>
               );
             })}

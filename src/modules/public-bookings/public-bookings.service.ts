@@ -47,6 +47,9 @@ export class PublicBookingsService {
     }
     if (!service) throw new NotFoundException('Servicio no encontrado');
     if (!professional) throw new NotFoundException('Profesional no encontrado');
+    if (!(professional.serviceIds ?? []).map((item) => String(item)).includes(dto.serviceId)) {
+      throw new BadRequestException('El profesional no esta asociado al servicio seleccionado');
+    }
 
     const overlap = await this.appointmentModel.findOne({
       professionalId: dto.professionalId,

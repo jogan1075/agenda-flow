@@ -165,8 +165,9 @@ export const api = {
   deleteService(id: string) {
     return request(`/services/${id}`, { method: 'DELETE' });
   },
-  listProfessionals(businessId: string) {
-    return request<Array<Record<string, unknown>>>(`/professionals?businessId=${businessId}`);
+  listProfessionals(businessId: string, serviceId?: string) {
+    const serviceQuery = serviceId ? `&serviceId=${encodeURIComponent(serviceId)}` : '';
+    return request<Array<Record<string, unknown>>>(`/professionals?businessId=${businessId}${serviceQuery}`);
   },
   createProfessional(payload: Record<string, unknown>) {
     return request('/professionals', { method: 'POST', body: JSON.stringify(payload) });
