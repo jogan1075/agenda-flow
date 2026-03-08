@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
 import { api } from '@/lib/api';
 import { useBusinessId } from '@/lib/use-business-id';
@@ -15,6 +16,40 @@ type ServiceForm = {
   category: string;
   durationMinutes: number;
   price: number;
+};
+
+const SERVICE_CATEGORIES: Record<string, string[]> = {
+  ESTETICA_Y_BELLEZA: [
+    'Corte de cabello',
+    'Coloracion',
+    'Peinado',
+    'Barberia',
+    'Manicure',
+    'Pedicure',
+    'Limpieza facial',
+    'Depilacion',
+    'Masajes',
+    'Cejas y pestanas',
+  ],
+  SALUD: [
+    'Consulta medica',
+    'Control',
+    'Examen',
+    'Terapia',
+    'Fisioterapia',
+    'Kinesiologia',
+    'Psicologia',
+    'Podologia',
+  ],
+  BIENESTAR: [
+    'Nutricion',
+    'Entrenamiento funcional',
+    'Crossfit',
+    'Pilates',
+    'Yoga',
+    'Evaluacion fisica',
+  ],
+  GENERIC: ['Consulta', 'Sesion', 'Tratamiento', 'Evaluacion', 'Paquete'],
 };
 
 export default function ServiciosPage() {
@@ -28,6 +63,18 @@ export default function ServiciosPage() {
     queryFn: () => api.listServices(businessId),
     enabled: !!businessId,
   });
+
+  const businessQuery = useQuery({
+    queryKey: ['business', businessId],
+    queryFn: () => api.getBusinesses(businessId),
+    enabled: !!businessId,
+  });
+
+  const categoryOptions = useMemo(() => {
+    const business = businessQuery.data as Record<string, unknown> | undefined;
+    const key = String(business?.businessCategory ?? '');
+    return SERVICE_CATEGORIES[key] ?? SERVICE_CATEGORIES.GENERIC;
+  }, [businessQuery.data]);
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['services', businessId] });
 
@@ -110,7 +157,14 @@ export default function ServiciosPage() {
           })}
         >
           <Input placeholder="Nombre" {...register('name')} />
-          <Input placeholder="Categoría" {...register('category')} />
+          <Select {...register('category')}>
+            <option value="">Selecciona categoría</option>
+            {categoryOptions.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </Select>
           <Input type="number" placeholder="Duración" {...register('durationMinutes', { valueAsNumber: true })} />
           <Input type="number" placeholder="Precio" {...register('price', { valueAsNumber: true })} />
           <Button>{editingId ? 'Guardar cambios' : 'Crear'}</Button>

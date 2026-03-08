@@ -11,9 +11,9 @@ export class ApiError extends Error {
 }
 
 export type LoginPayload = {
-  businessId: string;
   email: string;
   password: string;
+  businessId?: string;
 };
 
 export type RegisterPayload = {
@@ -53,13 +53,28 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
   login(payload: LoginPayload) {
-    return request<{ accessToken: string; user: { businessId: string; role: 'owner' | 'admin' | 'staff' } }>(
+    return request<{ accessToken: string; user: { businessId: string; role: 'super_admin' | 'owner' | 'admin' | 'staff' } }>(
       '/auth/login',
       {
       method: 'POST',
       body: JSON.stringify(payload),
       },
     );
+  },
+  createBusiness(payload: Record<string, unknown>) {
+    return request('/businesses', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+  createOwnerBySuperAdmin(payload: { fullName: string; email: string; password: string }, token: string) {
+    return request('/auth/superadmin/create-owner', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
   },
   getBusinesses(id: string) {
     return request(`/businesses/${id}`);

@@ -5,7 +5,7 @@ export type UserDocument = HydratedDocument<User>;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop()
   businessId: string;
 
   @Prop({ required: true })
@@ -17,9 +17,9 @@ export class User {
   @Prop({ required: true })
   passwordHash: string;
 
-  @Prop({ required: true, enum: ['owner', 'admin', 'staff'], default: 'owner' })
-  role: 'owner' | 'admin' | 'staff';
+  @Prop({ required: true, enum: ['super_admin', 'owner', 'admin', 'staff'], default: 'owner' })
+  role: 'super_admin' | 'owner' | 'admin' | 'staff';
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.index({ businessId: 1, email: 1 }, { unique: true });
+UserSchema.index({ email: 1 }, { unique: true });

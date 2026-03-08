@@ -12,7 +12,6 @@ import { ApiError, api } from '@/lib/api';
 import { setSession } from '@/lib/session';
 
 const schema = z.object({
-  businessId: z.string().min(1, 'Business ID requerido'),
   email: z.string().email('Email inválido'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
 });
@@ -30,7 +29,16 @@ export default function LoginPage() {
   const loginMutation = useMutation({
     mutationFn: api.login,
     onSuccess: (data, vars) => {
-      setSession({ token: data.accessToken, businessId: data.user.businessId, email: vars.email, role: data.user.role });
+      setSession({
+        token: data.accessToken,
+        businessId: data.user.businessId,
+        email: vars.email,
+        role: data.user.role,
+      });
+      if (!data.user.businessId) {
+        router.push('/configuracion');
+        return;
+      }
       router.push('/dashboard');
     },
   });
@@ -50,10 +58,6 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold">Ingresar al panel</h1>
         </div>
         <form className="space-y-4" onSubmit={handleSubmit((values) => loginMutation.mutate(values))}>
-          <div>
-            <Input placeholder="Business ID" {...register('businessId')} />
-            {errors.businessId && <p className="mt-1 text-xs text-red-600">{errors.businessId.message}</p>}
-          </div>
           <div>
             <Input placeholder="Email" type="email" {...register('email')} />
             {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}

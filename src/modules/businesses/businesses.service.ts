@@ -5,24 +5,37 @@ import { CreateBusinessDto } from './dto/create-business.dto';
 import { UpdateBusinessDto } from './dto/update-business.dto';
 import { Business, BusinessDocument } from './business.schema';
 import { BUSINESS_TYPE_CATALOG, BusinessCategory } from './business-types';
+import { User, UserDocument } from '../users/user.schema';
 
 @Injectable()
 export class BusinessesService {
   constructor(
     @InjectModel(Business.name)
     private readonly businessModel: Model<BusinessDocument>,
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
   ) {}
 
-  create(dto: CreateBusinessDto) {
+  async create(dto: CreateBusinessDto) {
+    const { ownerEmail, ...businessDto } = dto;
     const normalized = this.normalizeBusinessType(dto.businessCategory, dto.businessSubcategory);
-
-    return this.businessModel.create({
-      ...dto,
+    const business = await this.businessModel.create({
+      ...businessDto,
       email: dto.email.toLowerCase(),
       ...normalized,
       branches: dto.branches ?? [],
       openingHours: dto.openingHours ?? this.defaultOpeningHours(),
     });
+
+    if (ownerEmail) {
+      await this.userModel.findOneAndUpdate(
+        { email: ownerEmail.toLowerCase() },
+        { businessId: business.id },
+        { new: true },
+      );
+    }
+
+    return business;
   }
 
   findById(id: string) {
