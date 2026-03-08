@@ -16,14 +16,22 @@ const nav = [
   { href: '/profesionales', label: 'Profesionales', icon: UserSquare2 },
   { href: '/reportes', label: 'Reportes', icon: ChartBar },
 ];
+const superAdminNav = [{ href: '/superadmin', label: 'SuperAdmin', icon: Users }];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const role = getSession()?.role ?? 'staff';
-  const canManageSettings = role === 'owner' || role === 'admin';
-  const navItems = canManageSettings ? [...nav, { href: '/configuracion', label: 'Configuracion', icon: MessageSquare }] : nav;
+  const session = getSession();
+  const role = session?.role ?? 'staff';
+  const hasBusiness = !!session?.businessId;
+  const canManageSettings = role === 'owner' || role === 'admin' || role === 'super_admin';
+  const baseNav = hasBusiness ? nav : [];
+  const navItems = [
+    ...baseNav,
+    ...(canManageSettings ? [{ href: '/configuracion', label: 'Configuracion', icon: MessageSquare }] : []),
+    ...(role === 'super_admin' ? superAdminNav : []),
+  ];
 
   useEffect(() => {
     const session = getSession();

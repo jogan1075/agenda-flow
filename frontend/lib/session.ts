@@ -2,7 +2,7 @@ export type SessionData = {
   token: string;
   businessId: string;
   email: string;
-  role: 'owner' | 'admin' | 'staff';
+  role: 'super_admin' | 'owner' | 'admin' | 'staff';
 };
 
 const KEY = 'agenda_session';

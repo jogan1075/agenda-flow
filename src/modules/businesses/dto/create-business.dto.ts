@@ -1,6 +1,5 @@
-import { IsBoolean, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { BUSINESS_CATEGORIES } from '../business-types';
-import { IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class BranchDto {
@@ -39,6 +38,10 @@ class OpeningHourDto {
 }
 
 export class CreateBusinessDto {
+  @IsOptional()
+  @IsEmail()
+  ownerEmail?: string;
+
   @IsString()
   @IsNotEmpty()
   name: string;

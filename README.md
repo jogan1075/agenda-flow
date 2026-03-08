@@ -35,6 +35,18 @@ API base: `http://localhost:3000/api`
 - IA en atencion automatica (opcional):
   - `OPENAI_API_KEY`
 
+## Super Admin (bootstrap inicial)
+Puedes crear automaticamente un super admin al iniciar la API con:
+- `SUPERADMIN_EMAIL`
+- `SUPERADMIN_PASSWORD`
+- `SUPERADMIN_NAME` (opcional)
+
+Con ese usuario:
+1. Inicias sesion en `/login` (solo email + password).
+2. Entras a `/superadmin`.
+3. Creas cuentas `owner` para cada cliente.
+4. El owner inicia sesion y crea/configura su negocio desde `Configuracion`.
+
 El scheduler corre cada minuto y procesa recordatorios `pending` con:
 - `channel = whatsapp`
 - `scheduledFor <= now`

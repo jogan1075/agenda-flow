@@ -8,16 +8,24 @@ export class UsersService {
   constructor(@InjectModel(User.name) private readonly userModel: Model<UserDocument>) {}
 
   create(input: {
-    businessId: string;
+    businessId?: string;
     fullName: string;
     email: string;
     passwordHash: string;
-    role: 'owner' | 'admin' | 'staff';
+    role: 'super_admin' | 'owner' | 'admin' | 'staff';
   }) {
     return this.userModel.create(input);
   }
 
   findByBusinessAndEmail(businessId: string, email: string) {
     return this.userModel.findOne({ businessId, email: email.toLowerCase() });
+  }
+
+  findByEmail(email: string) {
+    return this.userModel.findOne({ email: email.toLowerCase() });
+  }
+
+  assignBusinessByEmail(email: string, businessId: string) {
+    return this.userModel.findOneAndUpdate({ email: email.toLowerCase() }, { businessId }, { new: true });
   }
 }

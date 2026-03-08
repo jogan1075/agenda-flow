@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
 import { api } from '@/lib/api';
-import { getSession } from '@/lib/session';
+import { getSession, setSession } from '@/lib/session';
 import { useBusinessId } from '@/lib/use-business-id';
 
 type BranchForm = {
@@ -27,6 +28,7 @@ type OpeningHourForm = {
 
 type ConfigFormValues = {
   name: string;
+  businessEmail: string;
   phone: string;
   address: string;
   timezone: string;
@@ -68,9 +70,11 @@ function defaultOpeningHours(): OpeningHourForm[] {
 }
 
 export default function ConfiguracionPage() {
+  const router = useRouter();
   const businessId = useBusinessId();
   const queryClient = useQueryClient();
-  const role = getSession()?.role ?? 'staff';
+  const session = getSession();
+  const role = session?.role ?? 'staff';
   const canManage = role === 'owner' || role === 'admin';
 
   const businessQuery = useQuery({
@@ -96,9 +100,30 @@ export default function ConfiguracionPage() {
     },
   });
 
+  const createBusinessMutation = useMutation({
+    mutationFn: (payload: Record<string, unknown>) => api.createBusiness(payload),
+    onSuccess: (created) => {
+      const createdBusiness = created as Record<string, unknown>;
+      const createdBusinessId = String(createdBusiness._id ?? '');
+      if (session && createdBusinessId) {
+        setSession({
+          ...session,
+          businessId: createdBusinessId,
+        });
+      }
+      router.push('/dashboard');
+      router.refresh();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo crear el negocio: ${detail}`);
+    },
+  });
+
   const [message, setMessage] = useState('');
   const [form, setForm] = useState<ConfigFormValues>({
     name: '',
+    businessEmail: '',
     phone: '',
     address: '',
     timezone: 'America/Santiago',
@@ -120,6 +145,7 @@ export default function ConfiguracionPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm({
       name: String(business.name ?? ''),
+      businessEmail: String(business.email ?? ''),
       phone: String(business.phone ?? ''),
       address: String(business.address ?? ''),
       timezone: String(business.timezone ?? 'America/Santiago'),
@@ -177,6 +203,63 @@ export default function ConfiguracionPage() {
     );
   }
 
+  if (!businessId) {
+    return (
+      <div className="space-y-6">
+        <SectionHeader title="Crear Negocio" subtitle="Primero crea tu negocio para comenzar a usar el manager" />
+        <Card className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            <Input
+              placeholder="Nombre del negocio"
+              value={form.name}
+              onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+            />
+            <Input
+              placeholder="Email del negocio"
+              value={form.businessEmail}
+              onChange={(event) => setForm((prev) => ({ ...prev, businessEmail: event.target.value }))}
+            />
+            <Input
+              placeholder="Telefono principal"
+              value={form.phone}
+              onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
+            />
+            <Input
+              placeholder="Direccion principal"
+              value={form.address}
+              onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
+            />
+          </div>
+          <Button
+            disabled={createBusinessMutation.isPending}
+            onClick={() => {
+              if (!form.name.trim()) {
+                setMessage('El nombre del negocio es obligatorio.');
+                return;
+              }
+
+              const defaultBusinessEmail =
+                form.businessEmail.trim() || session?.email || `owner+${Date.now()}@negocio.local`;
+
+              createBusinessMutation.mutate({
+                ownerEmail: session?.email,
+                name: form.name.trim(),
+                email: defaultBusinessEmail.toLowerCase(),
+                phone: form.phone.trim() || undefined,
+                address: form.address.trim() || undefined,
+                timezone: form.timezone,
+                currency: form.currency,
+              });
+            }}
+          >
+            Crear negocio y continuar
+          </Button>
+          {message ? <p className="rounded-lg bg-zinc-100 p-2 text-xs text-zinc-700">{message}</p> : null}
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <SectionHeader title="Configuracion" subtitle="Negocio, sucursales, horarios y WhatsApp" />
@@ -188,6 +271,11 @@ export default function ConfiguracionPage() {
             placeholder="Nombre del negocio"
             value={form.name}
             onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+          />
+          <Input
+            placeholder="Email del negocio"
+            value={form.businessEmail}
+            onChange={(event) => setForm((prev) => ({ ...prev, businessEmail: event.target.value }))}
           />
           <Input
             placeholder="Telefono principal"
@@ -391,8 +479,10 @@ export default function ConfiguracionPage() {
           <Button
             disabled={updateMutation.isPending}
             onClick={() => {
+              const { businessEmail, ...restForm } = form;
               const payload = {
-                ...form,
+                ...restForm,
+                email: businessEmail || undefined,
                 branches: branches.filter((branch) => branch.name.trim().length > 0),
                 openingHours,
               };
