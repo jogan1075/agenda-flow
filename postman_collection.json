@@ -1,0 +1,417 @@
+{
+  "info": {
+    "name": "Backend MVP Reservas - NestJS Mongo",
+    "_postman_id": "a13e9b44-ec11-4d24-9625-bf0fd095f996",
+    "description": "Coleccion para probar API de reservas y bot de WhatsApp.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "businessId", "value": "" },
+    { "key": "serviceId", "value": "" },
+    { "key": "professionalId", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "appointmentId", "value": "" },
+    { "key": "reminderId", "value": "" },
+    { "key": "userEmail", "value": "owner@example.com" },
+    { "key": "userPassword", "value": "secret123" },
+    { "key": "jwt", "value": "" },
+    { "key": "testPhone", "value": "+56911112222" }
+  ],
+  "item": [
+    {
+      "name": "1. Setup",
+      "item": [
+        {
+          "name": "Create Business",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/businesses",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mi Salon Demo\",\n  \"email\": \"demo-business@example.com\",\n  \"phone\": \"+56912345678\",\n  \"address\": \"Santiago Centro\",\n  \"timezone\": \"America/Santiago\",\n  \"currency\": \"CLP\",\n  \"whatsappWelcomeMessage\": \"Hola, bienvenido. Elige una opcion para tu reserva.\",\n  \"whatsappReminderTemplate\": \"Hola {{cliente}}, te recordamos tu cita en {{negocio}} el {{fecha}} a las {{hora}}.\",\n  \"whatsappLocationText\": \"Nuestra ubicacion\",\n  \"whatsappLocationUrl\": \"https://maps.google.com/?q=-33.4489,-70.6693\",\n  \"whatsappAiEnabled\": true\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', function () { pm.expect(pm.response.code).to.be.oneOf([200,201]); });",
+                  "const json = pm.response.json();",
+                  "if (json && json._id) pm.collectionVariables.set('businessId', json._id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Owner",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"fullName\": \"Owner Demo\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"role\": \"owner\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201/200', function () { pm.expect(pm.response.code).to.be.oneOf([200,201,409]); });",
+                  "if (pm.response.code !== 409) { const j = pm.response.json(); if (j.accessToken) pm.collectionVariables.set('jwt', j.accessToken); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "const j = pm.response.json();",
+                  "if (j.accessToken) pm.collectionVariables.set('jwt', j.accessToken);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Business WhatsApp Settings",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/businesses/{{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"whatsappWelcomeMessage\": \"Hola 👋 Soy tu asistente de reservas. Responde 1 para reservar.\",\n  \"whatsappAiEnabled\": true\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Catalog",
+      "item": [
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/services",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"name\": \"Corte de cabello\",\n  \"category\": \"Peluqueria\",\n  \"durationMinutes\": 60,\n  \"price\": 12000,\n  \"isActive\": true\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {"type":"text/javascript","exec":[
+              "const j = pm.response.json(); if (j && j._id) pm.collectionVariables.set('serviceId', j._id);"
+            ]}
+          }]
+        },
+        {
+          "name": "Create Professional",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/professionals",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"fullName\": \"Sofia Perez\",\n  \"phone\": \"+56988887777\",\n  \"serviceIds\": [\"{{serviceId}}\"],\n  \"isActive\": true\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {"type":"text/javascript","exec":[
+              "const j = pm.response.json(); if (j && j._id) pm.collectionVariables.set('professionalId', j._id);"
+            ]}
+          }]
+        },
+        {
+          "name": "List Services",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/services?businessId={{businessId}}"
+          }
+        },
+        {
+          "name": "List Professionals",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/professionals?businessId={{businessId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Customers & Appointments",
+      "item": [
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/customers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"fullName\": \"Cliente Demo\",\n  \"phone\": \"{{testPhone}}\",\n  \"email\": \"cliente@example.com\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {"type":"text/javascript","exec":[
+              "const j = pm.response.json(); if (j && j._id) pm.collectionVariables.set('customerId', j._id);"
+            ]}
+          }]
+        },
+        {
+          "name": "Create Appointment (Manual)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/appointments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"businessId\": \"{{businessId}}\",\n  \"customerId\": \"{{customerId}}\",\n  \"professionalId\": \"{{professionalId}}\",\n  \"serviceId\": \"{{serviceId}}\",\n  \"source\": \"manual\",\n  \"status\": \"confirmed\",\n  \"startsAt\": \"2026-03-20T14:00:00.000Z\",\n  \"endsAt\": \"2026-03-20T15:00:00.000Z\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {"type":"text/javascript","exec":[
+              "const j = pm.response.json(); if (j && j._id) pm.collectionVariables.set('appointmentId', j._id);"
+            ]}
+          }]
+        },
+        {
+          "name": "List Appointments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/appointments?businessId={{businessId}}&from=2026-03-01T00:00:00.000Z&to=2026-03-31T23:59:59.000Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Reminders",
+      "item": [
+        {
+          "name": "Create WhatsApp Reminder",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/reminders",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": \"{{appointmentId}}\",\n  \"channel\": \"whatsapp\",\n  \"scheduledFor\": \"2026-03-19T14:00:00.000Z\",\n  \"status\": \"pending\"\n}"
+            }
+          },
+          "event": [{
+            "listen": "test",
+            "script": {"type":"text/javascript","exec":[
+              "const j = pm.response.json(); if (j && j._id) pm.collectionVariables.set('reminderId', j._id);"
+            ]}
+          }]
+        },
+        {
+          "name": "Process Reminders Now",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/reminders/process-now?limit=50"
+          }
+        },
+        {
+          "name": "List Pending Reminders",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/reminders/pending?until=2026-12-31T23:59:59.000Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Reports",
+      "item": [
+        {
+          "name": "Basic Report",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/reports/basic?businessId={{businessId}}&from=2026-03-01T00:00:00.000Z&to=2026-03-31T23:59:59.000Z"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. WhatsApp Bot",
+      "item": [
+        {
+          "name": "Webhook Twilio - Start/Menu",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"menu\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Reserva (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Seleccionar Servicio (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Seleccionar Profesional (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Seleccionar Horario (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Confirmar Reserva",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"confirm_yes\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Cancelar (3)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"3\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Confirmar Cita a Cancelar (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Reprogramar (4)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"4\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Webhook Twilio - Confirmar Cita a Reprogramar (1)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/twilio?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"From\": \"whatsapp:{{testPhone}}\",\n  \"Body\": \"1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Send Location Utility",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/whatsapp-bot/send-location/{{businessId}}?to={{testPhone}}"
+          }
+        },
+        {
+          "name": "Meta Verify Webhook",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/meta?hub.mode=subscribe&hub.verify_token=TOKEN&hub.challenge=12345"
+          }
+        },
+        {
+          "name": "Webhook Meta - Text Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/whatsapp-bot/webhook/meta?businessId={{businessId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entry\": [{\n    \"changes\": [{\n      \"value\": {\n        \"messages\": [{\n          \"from\": \"56911112222\",\n          \"text\": { \"body\": \"menu\" }\n        }]\n      }\n    }]\n  }]\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

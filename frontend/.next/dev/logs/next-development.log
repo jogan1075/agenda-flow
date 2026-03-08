@@ -1,0 +1,154 @@
+[00:00:01.122] Server  LOG     ✓ Ready in 945ms
+[00:00:02.851] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:22:46.264] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:16:40.393] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:16:40.393] Browser WARN    The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+[01:25:08.508] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:25:08.641] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+      <RedirectBoundary>
+        <RedirectErrorBoundary router={{...}}>
+          <InnerLayoutRouter url="/dashboard" tree={[...]} params={{}} cacheNode={{...}} segmentPath={[...]} ...>
+            <SegmentViewNode type="layout" pagePath="(app)/layo...">
+              <SegmentTrieNode>
+              <PrivateLayout>
+                <AppShell>
+                  <div className="min-h-scre...">
+                    <button>
+                    <div className="mx-auto gr...">
+                      <aside className="hidden rou...">
+                        <div>
+                        <nav className="space-y-1">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/configura..." className="flex items...">
++                           <a
++                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition t..."
++                             ref={function}
++                             onClick={function onClick}
++                             onMouseEnter={function onMouseEnter}
++                             onTouchStart={function onTouchStart}
++                             href="/configuracion"
++                           >
+                        ...
+                      ...
+          ...
+
+[01:36:22.188] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:36:22.489] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:36:23.102] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+      <RedirectBoundary>
+        <RedirectErrorBoundary router={{...}}>
+          <InnerLayoutRouter url="/dashboard" tree={[...]} params={{}} cacheNode={{...}} segmentPath={[...]} ...>
+            <SegmentViewNode type="layout" pagePath="(app)/layo...">
+              <SegmentTrieNode>
+              <PrivateLayout>
+                <AppShell>
+                  <div className="min-h-scre...">
+                    <button>
+                    <div className="mx-auto gr...">
+                      <aside className="hidden rou...">
+                        <div>
+                        <nav className="space-y-1">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/configura..." className="flex items...">
++                           <a
++                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition t..."
++                             ref={function}
++                             onClick={function onClick}
++                             onMouseEnter={function onMouseEnter}
++                             onTouchStart={function onTouchStart}
++                             href="/configuracion"
++                           >
+                        ...
+                      ...
+          ...
+
+[01:45:19.196] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:45:19.532] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:45:20.103] Browser ERROR   uncaughtError: Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<SegmentViewNode>} forbidden={undefined} ...>
+      <RedirectBoundary>
+        <RedirectErrorBoundary router={{...}}>
+          <InnerLayoutRouter url="/dashboard" tree={[...]} params={{}} cacheNode={{...}} segmentPath={[...]} ...>
+            <SegmentViewNode type="layout" pagePath="(app)/layo...">
+              <SegmentTrieNode>
+              <PrivateLayout>
+                <AppShell>
+                  <div className="min-h-scre...">
+                    <button>
+                    <div className="mx-auto gr...">
+                      <aside className="hidden rou...">
+                        <div>
+                        <nav className="space-y-1">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/configura..." className="flex items...">
++                           <a
++                             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition t..."
++                             ref={function}
++                             onClick={function onClick}
++                             onMouseEnter={function onMouseEnter}
++                             onTouchStart={function onTouchStart}
++                             href="/configuracion"
++                           >
+                        ...
+                      ...
+          ...
+

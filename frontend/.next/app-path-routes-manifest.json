@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/login/page": "/login",
+  "/reservas/page": "/reservas",
+  "/page": "/",
+  "/(app)/clientes/page": "/clientes",
+  "/(app)/agenda/page": "/agenda",
+  "/(app)/dashboard/page": "/dashboard",
+  "/(app)/servicios/page": "/servicios",
+  "/(app)/configuracion/page": "/configuracion",
+  "/(app)/profesionales/page": "/profesionales",
+  "/(app)/reportes/page": "/reportes"
+}

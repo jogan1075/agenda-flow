@@ -1,0 +1,83 @@
+services:
+  - type: web
+    name: reservas-api
+    runtime: node
+    rootDir: .
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    plan: starter
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: WHATSAPP_PROVIDER
+        value: twilio
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: META_WHATSAPP_ACCESS_TOKEN
+        sync: false
+      - key: META_WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: META_WEBHOOK_VERIFY_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_REQUIRE_TLS
+        value: "true"
+      - key: SMTP_TLS_REJECT_UNAUTHORIZED
+        value: "true"
+
+  - type: web
+    name: reservas-manager-web
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -- -p $PORT
+    plan: starter
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_API_URL
+        value: https://reservas-api.onrender.com/api
+      - key: NEXT_PUBLIC_APP_MODE
+        value: manager
+
+  - type: web
+    name: reservas-cliente-web
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start -- -p $PORT
+    plan: starter
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NEXT_PUBLIC_API_URL
+        value: https://reservas-api.onrender.com/api
+      - key: NEXT_PUBLIC_APP_MODE
+        value: reservas
+      - key: NEXT_PUBLIC_DEFAULT_BUSINESS_ID
+        sync: false
