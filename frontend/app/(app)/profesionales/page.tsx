@@ -23,6 +23,7 @@ type ProfessionalForm = {
   fullName: string;
   email: string;
   phone: string;
+  serviceId: string;
   commissionPercent: string;
   photoUrl: string;
   schedulePreset: 'part_time' | 'full_time' | 'weekends';
@@ -100,6 +101,7 @@ export default function ProfesionalesPage() {
     fullName: '',
     email: '',
     phone: '',
+    serviceId: '',
     commissionPercent: '0',
     photoUrl: '',
     schedulePreset: 'part_time',
@@ -110,6 +112,11 @@ export default function ProfesionalesPage() {
   const professionalsQuery = useQuery({
     queryKey: ['professionals', businessId],
     queryFn: () => api.listProfessionals(businessId),
+    enabled: !!businessId,
+  });
+  const servicesQuery = useQuery({
+    queryKey: ['services', businessId],
+    queryFn: () => api.listServices(businessId),
     enabled: !!businessId,
   });
 
@@ -157,6 +164,10 @@ export default function ProfesionalesPage() {
   });
 
   const selectedCount = useMemo(() => weeklySchedule.filter((day) => day.enabled).length, [weeklySchedule]);
+  const serviceNameById = useMemo(
+    () => new Map((servicesQuery.data ?? []).map((service) => [String(service._id), String(service.name)])),
+    [servicesQuery.data],
+  );
   const isBeautyBusiness = useMemo(() => {
     const business = businessQuery.data as Record<string, unknown> | undefined;
     return String(business?.businessCategory ?? '') === 'ESTETICA_Y_BELLEZA';
@@ -168,6 +179,7 @@ export default function ProfesionalesPage() {
       fullName: '',
       email: '',
       phone: '',
+      serviceId: '',
       commissionPercent: '0',
       photoUrl: '',
       schedulePreset: 'part_time',
@@ -197,6 +209,10 @@ export default function ProfesionalesPage() {
       setMessage('El nombre del profesional es obligatorio.');
       return;
     }
+    if (!form.serviceId) {
+      setMessage('Selecciona al menos un servicio para el profesional.');
+      return;
+    }
 
     const payload = {
       businessId,
@@ -207,7 +223,7 @@ export default function ProfesionalesPage() {
       commissionPercent: isBeautyBusiness ? Number(form.commissionPercent || '0') : 0,
       weeklySchedule: normalizeScheduleForPayload(weeklySchedule),
       isActive: true,
-      serviceIds: [],
+      serviceIds: [form.serviceId],
     };
 
     if (editingId) {
@@ -242,6 +258,7 @@ export default function ProfesionalesPage() {
       fullName: String(professional.fullName ?? ''),
       email: String(professional.email ?? ''),
       phone: String(professional.phone ?? ''),
+      serviceId: String((professional.serviceIds as Array<unknown> | undefined)?.[0] ?? ''),
       commissionPercent: String(professional.commissionPercent ?? '0'),
       photoUrl: String(professional.photoUrl ?? ''),
       schedulePreset: 'part_time',
@@ -261,7 +278,7 @@ export default function ProfesionalesPage() {
         }
       />
       <Card>
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-5">
           <Input
             placeholder="Nombre"
             value={form.fullName}
@@ -278,6 +295,17 @@ export default function ProfesionalesPage() {
             value={form.phone}
             onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
           />
+          <Select
+            value={form.serviceId}
+            onChange={(event) => setForm((prev) => ({ ...prev, serviceId: event.target.value }))}
+          >
+            <option value="">Servicio que presta</option>
+            {(servicesQuery.data ?? []).map((service) => (
+              <option key={String(service._id)} value={String(service._id)}>
+                {String(service.name)}
+              </option>
+            ))}
+          </Select>
           {isBeautyBusiness ? (
             <Input
               type="number"
@@ -408,6 +436,7 @@ export default function ProfesionalesPage() {
             <thead className="text-left text-zinc-500">
               <tr>
                 <th className="py-2">Profesional</th>
+                <th>Servicio</th>
                 <th>Comision</th>
                 <th>Horario</th>
                 <th>Acciones</th>
@@ -435,6 +464,11 @@ export default function ProfesionalesPage() {
                         <p className="text-xs text-zinc-500">{String(professional.phone ?? '-')}</p>
                       </div>
                     </div>
+                  </td>
+                  <td>
+                    {((professional.serviceIds as Array<unknown> | undefined) ?? [])
+                      .map((serviceId) => serviceNameById.get(String(serviceId)) ?? String(serviceId))
+                      .join(', ') || '-'}
                   </td>
                   <td>{String(professional.commissionPercent ?? 0)}%</td>
                   <td className="max-w-xl text-xs text-zinc-600">{scheduleText(professional.weeklySchedule)}</td>

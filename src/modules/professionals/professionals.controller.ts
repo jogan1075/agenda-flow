@@ -13,8 +13,8 @@ export class ProfessionalsController {
   }
 
   @Get()
-  list(@Query('businessId') businessId: string) {
-    return this.professionalsService.listByBusiness(businessId);
+  list(@Query('businessId') businessId: string, @Query('serviceId') serviceId?: string) {
+    return this.professionalsService.listByBusiness(businessId, serviceId);
   }
 
   @Patch(':id')

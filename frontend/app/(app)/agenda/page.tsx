@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatISO } from 'date-fns';
 import { useForm } from 'react-hook-form';
@@ -60,7 +60,7 @@ export default function AgendaPage() {
     enabled: !!businessId,
   });
 
-  const { register, handleSubmit, reset, setValue, getValues } = useForm<AppointmentPayload>({
+  const { register, handleSubmit, reset, setValue, getValues, watch } = useForm<AppointmentPayload>({
     defaultValues: {
       customerId: '',
       professionalId: '',
@@ -118,6 +118,42 @@ export default function AgendaPage() {
     () => (professionalsQuery.data ?? []).find((p) => String(p._id) === availabilityProfessionalId),
     [professionalsQuery.data, availabilityProfessionalId],
   );
+  const professionalsForAvailability = useMemo(() => {
+    if (!availabilityServiceId) {
+      return professionalsQuery.data ?? [];
+    }
+    return (professionalsQuery.data ?? []).filter((professional) =>
+      ((professional.serviceIds as Array<unknown> | undefined) ?? []).map(String).includes(availabilityServiceId),
+    );
+  }, [professionalsQuery.data, availabilityServiceId]);
+  const formServiceId = watch('serviceId');
+  const professionalsForForm = useMemo(() => {
+    if (!formServiceId) {
+      return professionalsQuery.data ?? [];
+    }
+    return (professionalsQuery.data ?? []).filter((professional) =>
+      ((professional.serviceIds as Array<unknown> | undefined) ?? []).map(String).includes(formServiceId),
+    );
+  }, [professionalsQuery.data, formServiceId]);
+
+  useEffect(() => {
+    if (!availabilityProfessionalId) return;
+    const stillAvailable = professionalsForAvailability.some(
+      (professional) => String(professional._id) === availabilityProfessionalId,
+    );
+    if (!stillAvailable) {
+      setAvailabilityProfessionalId('');
+    }
+  }, [availabilityProfessionalId, professionalsForAvailability]);
+
+  useEffect(() => {
+    const formProfessionalId = getValues('professionalId');
+    if (!formProfessionalId) return;
+    const stillAvailable = professionalsForForm.some((professional) => String(professional._id) === formProfessionalId);
+    if (!stillAvailable) {
+      setValue('professionalId', '');
+    }
+  }, [professionalsForForm, getValues, setValue]);
 
   const availableSlots = useMemo(() => {
     if (!selectedService || !availabilityProfessionalId) return [];
@@ -207,6 +243,7 @@ export default function AgendaPage() {
             value={availabilityServiceId}
             onChange={(event) => {
               setAvailabilityServiceId(event.target.value);
+              setAvailabilityProfessionalId('');
               setSelectedSlotStart('');
             }}
           >
@@ -225,7 +262,7 @@ export default function AgendaPage() {
             }}
           >
             <option value="">Selecciona profesional</option>
-            {(professionalsQuery.data ?? []).map((professional) => (
+            {professionalsForAvailability.map((professional) => (
               <option key={String(professional._id)} value={String(professional._id)}>
                 {String(professional.fullName)}
               </option>
@@ -324,13 +361,19 @@ export default function AgendaPage() {
           </Select>
           <Select {...register('professionalId')}>
             <option value="">Profesional</option>
-            {(professionalsQuery.data ?? []).map((professional) => (
+            {professionalsForForm.map((professional) => (
               <option key={String(professional._id)} value={String(professional._id)}>
                 {String(professional.fullName)}
               </option>
             ))}
           </Select>
-          <Select {...register('serviceId')}>
+          <Select
+            {...register('serviceId')}
+            onChange={(event) => {
+              setValue('serviceId', event.target.value, { shouldDirty: true, shouldValidate: true });
+              setValue('professionalId', '');
+            }}
+          >
             <option value="">Servicio</option>
             {(servicesQuery.data ?? []).map((service) => (
               <option key={String(service._id)} value={String(service._id)}>
