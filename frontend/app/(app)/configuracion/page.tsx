@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
@@ -90,7 +91,7 @@ export default function ConfiguracionPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo guardar la configuracion: ${detail}`);
+      setErrorDialogMessage(`No se pudo guardar la configuracion: ${detail}`);
     },
   });
 
@@ -110,11 +111,12 @@ export default function ConfiguracionPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo crear el negocio: ${detail}`);
+      setErrorDialogMessage(`No se pudo crear el negocio: ${detail}`);
     },
   });
 
   const [message, setMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
   const [form, setForm] = useState<ConfigFormValues>({
     name: '',
     businessEmail: '',
@@ -230,7 +232,7 @@ export default function ConfiguracionPage() {
             disabled={createBusinessMutation.isPending}
             onClick={() => {
               if (!form.name.trim()) {
-                setMessage('El nombre del negocio es obligatorio.');
+                setErrorDialogMessage('El nombre del negocio es obligatorio.');
                 return;
               }
 
@@ -493,6 +495,7 @@ export default function ConfiguracionPage() {
         </div>
         {message ? <p className="mt-3 rounded-lg bg-zinc-100 p-2 text-xs text-zinc-700">{message}</p> : null}
       </Card>
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }

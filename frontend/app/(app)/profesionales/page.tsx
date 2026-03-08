@@ -4,6 +4,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
@@ -97,6 +98,7 @@ export default function ProfesionalesPage() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState('');
   const [message, setMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
   const [form, setForm] = useState<ProfessionalForm>({
     fullName: '',
     email: '',
@@ -137,7 +139,7 @@ export default function ProfesionalesPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo crear el profesional: ${detail}`);
+      setErrorDialogMessage(`No se pudo crear el profesional: ${detail}`);
     },
   });
 
@@ -151,7 +153,7 @@ export default function ProfesionalesPage() {
     },
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo actualizar el profesional: ${detail}`);
+      setErrorDialogMessage(`No se pudo actualizar el profesional: ${detail}`);
     },
   });
 
@@ -206,11 +208,11 @@ export default function ProfesionalesPage() {
 
     const fullName = form.fullName.trim();
     if (!fullName) {
-      setMessage('El nombre del profesional es obligatorio.');
+      setErrorDialogMessage('El nombre del profesional es obligatorio.');
       return;
     }
     if (!form.serviceId) {
-      setMessage('Selecciona al menos un servicio para el profesional.');
+      setErrorDialogMessage('Selecciona al menos un servicio para el profesional.');
       return;
     }
 
@@ -493,6 +495,7 @@ export default function ProfesionalesPage() {
           </table>
         </div>
       </Card>
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }

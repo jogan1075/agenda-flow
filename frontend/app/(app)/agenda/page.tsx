@@ -6,6 +6,7 @@ import { formatISO } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ErrorDialog } from '@/components/ui/error-dialog';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
@@ -576,15 +577,7 @@ export default function AgendaPage() {
         </div>
       ) : null}
 
-      {errorDialogMessage ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <Card className="w-full max-w-md space-y-3 border border-red-200 bg-red-50">
-            <h3 className="text-base font-semibold text-red-800">Error</h3>
-            <p className="text-sm text-red-700">{errorDialogMessage}</p>
-            <Button onClick={() => setErrorDialogMessage('')}>Cerrar</Button>
-          </Card>
-        </div>
-      ) : null}
+      <ErrorDialog message={errorDialogMessage} onClose={() => setErrorDialogMessage('')} />
     </div>
   );
 }
