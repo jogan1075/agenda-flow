@@ -1,4 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000/api';
+const rawApiUrl = String(process.env.NEXT_PUBLIC_API_URL ?? '').trim();
+const normalizedBaseUrl = rawApiUrl
+  ? rawApiUrl.replace(/\/+$/, '')
+  : 'http://localhost:3000/api';
+const API_URL = normalizedBaseUrl.endsWith('/api') ? normalizedBaseUrl : `${normalizedBaseUrl}/api`;
 
 export class ApiError extends Error {
   status: number;
