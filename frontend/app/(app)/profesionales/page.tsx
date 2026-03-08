@@ -113,6 +113,12 @@ export default function ProfesionalesPage() {
     enabled: !!businessId,
   });
 
+  const businessQuery = useQuery({
+    queryKey: ['business', businessId],
+    queryFn: () => api.getBusinesses(businessId),
+    enabled: !!businessId,
+  });
+
   const refresh = () => queryClient.invalidateQueries({ queryKey: ['professionals', businessId] });
 
   const createMutation = useMutation({
@@ -151,6 +157,10 @@ export default function ProfesionalesPage() {
   });
 
   const selectedCount = useMemo(() => weeklySchedule.filter((day) => day.enabled).length, [weeklySchedule]);
+  const isBeautyBusiness = useMemo(() => {
+    const business = businessQuery.data as Record<string, unknown> | undefined;
+    return String(business?.businessCategory ?? '') === 'ESTETICA_Y_BELLEZA';
+  }, [businessQuery.data]);
 
   const resetForm = () => {
     setEditingId('');
@@ -193,8 +203,8 @@ export default function ProfesionalesPage() {
       fullName,
       email: form.email.trim() || undefined,
       phone: form.phone.trim() || undefined,
-      photoUrl: form.photoUrl || undefined,
-      commissionPercent: Number(form.commissionPercent || '0'),
+      photoUrl: isBeautyBusiness ? form.photoUrl || undefined : undefined,
+      commissionPercent: isBeautyBusiness ? Number(form.commissionPercent || '0') : 0,
       weeklySchedule: normalizeScheduleForPayload(weeklySchedule),
       isActive: true,
       serviceIds: [],
@@ -242,7 +252,14 @@ export default function ProfesionalesPage() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title="Profesionales" subtitle="Perfil, comision y horario laboral" />
+      <SectionHeader
+        title="Profesionales"
+        subtitle={
+          isBeautyBusiness
+            ? 'Perfil, comision y horario laboral'
+            : 'Perfil y horario laboral (sin foto ni comision para este rubro)'
+        }
+      />
       <Card>
         <div className="grid gap-3 md:grid-cols-4">
           <Input
@@ -261,42 +278,52 @@ export default function ProfesionalesPage() {
             value={form.phone}
             onChange={(event) => setForm((prev) => ({ ...prev, phone: event.target.value }))}
           />
-          <Input
-            type="number"
-            min={0}
-            max={100}
-            placeholder="Comision % (ej: 35)"
-            value={form.commissionPercent}
-            onChange={(event) => setForm((prev) => ({ ...prev, commissionPercent: event.target.value }))}
-          />
+          {isBeautyBusiness ? (
+            <Input
+              type="number"
+              min={0}
+              max={100}
+              placeholder="Comision % (ej: 35)"
+              value={form.commissionPercent}
+              onChange={(event) => setForm((prev) => ({ ...prev, commissionPercent: event.target.value }))}
+            />
+          ) : null}
         </div>
-        <p className="mt-2 text-xs text-zinc-500">
-          Hint: ingresa un valor entre 0 y 100. Ejemplo: <span className="font-medium">35</span> ={" "}
-          <span className="font-medium">35%</span> de comision.
-        </p>
-
-        <div className="mt-3 grid gap-3 md:grid-cols-4">
-          <div className="md:col-span-2">
-            <label className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-              Seleccionar foto profesional
-              <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
-            </label>
-            <p className="mt-1 truncate text-xs text-zinc-500">
-              {selectedPhotoName || (form.photoUrl ? 'Imagen cargada' : 'Sin archivo seleccionado')}
+        {isBeautyBusiness ? (
+          <>
+            <p className="mt-2 text-xs text-zinc-500">
+              Hint: ingresa un valor entre 0 y 100. Ejemplo: <span className="font-medium">35</span> ={' '}
+              <span className="font-medium">35%</span> de comision.
             </p>
-          </div>
-          <div className="md:col-span-2 flex items-center gap-3">
-            <div className="h-16 w-16 overflow-hidden rounded-full border border-zinc-200 bg-zinc-50">
-              {form.photoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">Sin foto</div>
-              )}
+
+            <div className="mt-3 grid gap-3 md:grid-cols-4">
+              <div className="md:col-span-2">
+                <label className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
+                  Seleccionar foto profesional
+                  <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
+                </label>
+                <p className="mt-1 truncate text-xs text-zinc-500">
+                  {selectedPhotoName || (form.photoUrl ? 'Imagen cargada' : 'Sin archivo seleccionado')}
+                </p>
+              </div>
+              <div className="md:col-span-2 flex items-center gap-3">
+                <div className="h-16 w-16 overflow-hidden rounded-full border border-zinc-200 bg-zinc-50">
+                  {form.photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">Sin foto</div>
+                  )}
+                </div>
+                <p className="text-xs text-zinc-500">La fotografia se guarda junto al perfil.</p>
+              </div>
             </div>
-            <p className="text-xs text-zinc-500">La fotografia se guarda junto al perfil.</p>
+          </>
+        ) : (
+          <div className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs text-zinc-600">
+            Para este tipo de negocio no se usa foto ni comision del profesional.
           </div>
-        </div>
+        )}
 
         <div className="mt-4 rounded-xl border border-zinc-200 p-3">
           <div className="grid gap-3 md:grid-cols-3">
