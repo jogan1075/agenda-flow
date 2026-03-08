@@ -101,20 +101,19 @@ Utilidad:
 - La autenticacion devuelve JWT, pero aun no se aplican guards por endpoint (siguiente paso recomendado).
 - `reminders` usa flujo seguro `pending -> processing -> sent/failed` para evitar duplicados.
 
-## Deploy en Render (API + Manager + Reservas)
-Este repo incluye [render.yaml](/Users/jonathan.munoz/Documents/New%20project/render.yaml) para crear 3 servicios:
+## Deploy en Render Free (sin pago)
+Este repo incluye [render.yaml](/Users/jonathan.munoz/Documents/New%20project/render.yaml) para crear 2 servicios Free:
 - `reservas-api` (NestJS)
-- `reservas-manager-web` (Next.js manager)
-- `reservas-cliente-web` (Next.js reservas cliente)
+- `reservas-web` (Next.js unificado: manager + reservas cliente)
 
 Pasos:
 1. Sube el repo a GitHub.
 2. En Render: `New` -> `Blueprint` -> conecta el repo.
-3. Render leerá `render.yaml` y propondrá los 3 servicios.
+3. Render leerá `render.yaml` y propondrá los 2 servicios.
 4. Completa variables `sync: false` (Mongo, Twilio/Meta, SMTP, etc.).
-5. En `reservas-manager-web` y `reservas-cliente-web`, ajusta `NEXT_PUBLIC_API_URL` al dominio real de `reservas-api`.
-6. Opcional para sitio cliente: define `NEXT_PUBLIC_DEFAULT_BUSINESS_ID` para no pedirlo manualmente.
+5. En `reservas-web`, ajusta `NEXT_PUBLIC_API_URL` al dominio real de `reservas-api`.
+6. Opcional: define `NEXT_PUBLIC_DEFAULT_BUSINESS_ID` para que `/reservas` no pida business ID manual.
 
-Comportamiento por modo frontend:
-- `NEXT_PUBLIC_APP_MODE=manager` -> `/` redirige a `/login`
-- `NEXT_PUBLIC_APP_MODE=reservas` -> `/` redirige a `/reservas`
+Rutas:
+- Manager: `/login` y panel interno
+- Cliente: `/reservas`

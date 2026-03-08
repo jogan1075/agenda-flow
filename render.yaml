@@ -5,7 +5,7 @@ services:
     rootDir: .
     buildCommand: npm install && npm run build
     startCommand: npm run start
-    plan: starter
+    plan: free
     envVars:
       - key: NODE_VERSION
         value: 20
@@ -51,33 +51,16 @@ services:
         value: "true"
 
   - type: web
-    name: reservas-manager-web
+    name: reservas-web
     runtime: node
     rootDir: frontend
     buildCommand: npm install && npm run build
     startCommand: npm run start -- -p $PORT
-    plan: starter
+    plan: free
     envVars:
       - key: NODE_VERSION
         value: 20
       - key: NEXT_PUBLIC_API_URL
         value: https://reservas-api.onrender.com/api
-      - key: NEXT_PUBLIC_APP_MODE
-        value: manager
-
-  - type: web
-    name: reservas-cliente-web
-    runtime: node
-    rootDir: frontend
-    buildCommand: npm install && npm run build
-    startCommand: npm run start -- -p $PORT
-    plan: starter
-    envVars:
-      - key: NODE_VERSION
-        value: 20
-      - key: NEXT_PUBLIC_API_URL
-        value: https://reservas-api.onrender.com/api
-      - key: NEXT_PUBLIC_APP_MODE
-        value: reservas
       - key: NEXT_PUBLIC_DEFAULT_BUSINESS_ID
         sync: false

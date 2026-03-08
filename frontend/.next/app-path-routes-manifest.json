@@ -1,14 +1,14 @@
 {
-  "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
-  "/login/page": "/login",
+  "/_global-error/page": "/_global-error",
   "/reservas/page": "/reservas",
   "/page": "/",
-  "/(app)/clientes/page": "/clientes",
-  "/(app)/agenda/page": "/agenda",
-  "/(app)/dashboard/page": "/dashboard",
-  "/(app)/servicios/page": "/servicios",
+  "/login/page": "/login",
   "/(app)/configuracion/page": "/configuracion",
+  "/(app)/reportes/page": "/reportes",
+  "/(app)/clientes/page": "/clientes",
   "/(app)/profesionales/page": "/profesionales",
-  "/(app)/reportes/page": "/reportes"
+  "/(app)/servicios/page": "/servicios",
+  "/(app)/agenda/page": "/agenda",
+  "/(app)/dashboard/page": "/dashboard"
 }

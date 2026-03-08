@@ -1,14 +1,14 @@
 {
-  "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
-  "/login/page": "app/login/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
   "/reservas/page": "app/reservas/page.js",
   "/page": "app/page.js",
-  "/(app)/clientes/page": "app/(app)/clientes/page.js",
-  "/(app)/agenda/page": "app/(app)/agenda/page.js",
-  "/(app)/dashboard/page": "app/(app)/dashboard/page.js",
-  "/(app)/servicios/page": "app/(app)/servicios/page.js",
+  "/login/page": "app/login/page.js",
   "/(app)/configuracion/page": "app/(app)/configuracion/page.js",
+  "/(app)/reportes/page": "app/(app)/reportes/page.js",
+  "/(app)/clientes/page": "app/(app)/clientes/page.js",
   "/(app)/profesionales/page": "app/(app)/profesionales/page.js",
-  "/(app)/reportes/page": "app/(app)/reportes/page.js"
+  "/(app)/servicios/page": "app/(app)/servicios/page.js",
+  "/(app)/agenda/page": "app/(app)/agenda/page.js",
+  "/(app)/dashboard/page": "app/(app)/dashboard/page.js"
 }
