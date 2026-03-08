@@ -187,6 +187,22 @@ export default function AgendaPage() {
     }
   }, [professionalsForForm, getValues, setValue]);
 
+  useEffect(() => {
+    if (!availabilityServiceId || availabilityProfessionalId) return;
+    if (professionalsForAvailability.length === 1) {
+      setAvailabilityProfessionalId(String(professionalsForAvailability[0]?._id ?? ''));
+    }
+  }, [availabilityServiceId, availabilityProfessionalId, professionalsForAvailability]);
+
+  useEffect(() => {
+    if (!formServiceId) return;
+    const formProfessionalId = getValues('professionalId');
+    if (formProfessionalId) return;
+    if (professionalsForForm.length === 1) {
+      setValue('professionalId', String(professionalsForForm[0]?._id ?? ''), { shouldDirty: true, shouldValidate: true });
+    }
+  }, [formServiceId, professionalsForForm, getValues, setValue]);
+
   const availableSlots = useMemo(() => {
     if (!selectedService || !availabilityProfessionalId) return [];
 
@@ -274,8 +290,14 @@ export default function AgendaPage() {
           <Select
             value={availabilityServiceId}
             onChange={(event) => {
-              setAvailabilityServiceId(event.target.value);
-              setAvailabilityProfessionalId('');
+              const nextServiceId = event.target.value;
+              const nextProfessionals = !nextServiceId
+                ? professionalsQuery.data ?? []
+                : (professionalsQuery.data ?? []).filter((professional) =>
+                    ((professional.serviceIds as Array<unknown> | undefined) ?? []).map(String).includes(nextServiceId),
+                  );
+              setAvailabilityServiceId(nextServiceId);
+              setAvailabilityProfessionalId(nextProfessionals.length === 1 ? String(nextProfessionals[0]?._id ?? '') : '');
               setSelectedSlotStart('');
             }}
           >
@@ -319,9 +341,6 @@ export default function AgendaPage() {
                 )}
                 onClick={() => {
                   setSelectedSlotStart(slot.startsAt);
-                  if (!getValues('customerId') && (customersQuery.data?.length ?? 0) === 1) {
-                    setValue('customerId', String(customersQuery.data?.[0]?._id ?? ''));
-                  }
                   setValue('serviceId', availabilityServiceId);
                   setValue('professionalId', availabilityProfessionalId);
                   setValue('startsAt', toLocalDatetimeInput(slot.startsAt), { shouldDirty: true, shouldValidate: true });
@@ -353,25 +372,21 @@ export default function AgendaPage() {
             const serviceId = String(values.serviceId ?? '').trim();
             const startsAt = String(values.startsAt ?? '').trim();
             const endsAt = String(values.endsAt ?? '').trim();
-            const customerIdFromSingle =
-              !customerId && (customersQuery.data?.length ?? 0) === 1
-                ? String(customersQuery.data?.[0]?._id ?? '')
-                : customerId;
 
             if (!professionalId || !serviceId || !startsAt || !endsAt) {
-              setFormMessage('Completa cliente, profesional, servicio, inicio y fin de la cita.');
+              setFormMessage('Completa profesional, servicio, inicio y fin de la cita.');
               return;
             }
 
             const payload = {
-              customerId: customerIdFromSingle,
+              customerId,
               professionalId,
               serviceId,
               startsAt: new Date(startsAt).toISOString(),
               endsAt: new Date(endsAt).toISOString(),
             };
 
-            if (!editingAppointmentId && !customerIdFromSingle) {
+            if (!editingAppointmentId && !customerId) {
               setPendingCreatePayload({
                 ...payload,
                 businessId,
@@ -387,7 +402,7 @@ export default function AgendaPage() {
             } else {
               await createMutation.mutateAsync({
                 ...payload,
-                customerId: customerIdFromSingle,
+                customerId,
                 businessId,
                 source: 'manual',
                 status: 'confirmed',
@@ -414,8 +429,14 @@ export default function AgendaPage() {
           <Select
             {...register('serviceId')}
             onChange={(event) => {
-              setValue('serviceId', event.target.value, { shouldDirty: true, shouldValidate: true });
-              setValue('professionalId', '');
+              const nextServiceId = event.target.value;
+              const nextProfessionals = !nextServiceId
+                ? professionalsQuery.data ?? []
+                : (professionalsQuery.data ?? []).filter((professional) =>
+                    ((professional.serviceIds as Array<unknown> | undefined) ?? []).map(String).includes(nextServiceId),
+                  );
+              setValue('serviceId', nextServiceId, { shouldDirty: true, shouldValidate: true });
+              setValue('professionalId', nextProfessionals.length === 1 ? String(nextProfessionals[0]?._id ?? '') : '');
             }}
           >
             <option value="">Servicio</option>
