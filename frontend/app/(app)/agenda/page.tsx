@@ -22,6 +22,14 @@ type AppointmentPayload = {
   endsAt: string;
 };
 
+type CustomerCreatePayload = {
+  businessId: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  isActive: boolean;
+};
+
 export default function AgendaPage() {
   const businessId = useBusinessId();
   const queryClient = useQueryClient();
@@ -32,6 +40,10 @@ export default function AgendaPage() {
   const [selectedSlotStart, setSelectedSlotStart] = useState('');
   const [editingAppointmentId, setEditingAppointmentId] = useState('');
   const [formMessage, setFormMessage] = useState('');
+  const [errorDialogMessage, setErrorDialogMessage] = useState('');
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({ fullName: '', phone: '', email: '' });
+  const [pendingCreatePayload, setPendingCreatePayload] = useState<Record<string, unknown> | null>(null);
 
   const from = `${availabilityDate}T00:00:00.000Z`;
   const to = `${availabilityDate}T23:59:59.000Z`;
@@ -82,6 +94,10 @@ export default function AgendaPage() {
       setFormMessage('Cita creada correctamente.');
       reset();
     },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo crear la cita: ${detail}`);
+    },
   });
 
   const updateMutation = useMutation({
@@ -94,6 +110,10 @@ export default function AgendaPage() {
       setFormMessage('Cita actualizada correctamente.');
       reset();
     },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo actualizar la cita: ${detail}`);
+    },
   });
 
   const cancelMutation = useMutation({
@@ -102,6 +122,17 @@ export default function AgendaPage() {
       await refreshAppointments();
       setSelectedSlotStart('');
       setFormMessage('Cita cancelada. El bloque volvió a estar disponible.');
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo eliminar/cancelar la cita: ${detail}`);
+    },
+  });
+  const createCustomerMutation = useMutation({
+    mutationFn: api.createCustomer,
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo crear el cliente: ${detail}`);
     },
   });
 
@@ -326,7 +357,7 @@ export default function AgendaPage() {
                 ? String(customersQuery.data?.[0]?._id ?? '')
                 : customerId;
 
-            if (!customerIdFromSingle || !professionalId || !serviceId || !startsAt || !endsAt) {
+            if (!professionalId || !serviceId || !startsAt || !endsAt) {
               setFormMessage('Completa cliente, profesional, servicio, inicio y fin de la cita.');
               return;
             }
@@ -339,11 +370,23 @@ export default function AgendaPage() {
               endsAt: new Date(endsAt).toISOString(),
             };
 
+            if (!editingAppointmentId && !customerIdFromSingle) {
+              setPendingCreatePayload({
+                ...payload,
+                businessId,
+                source: 'manual',
+                status: 'confirmed',
+              });
+              setShowCustomerModal(true);
+              return;
+            }
+
             if (editingAppointmentId) {
               await updateMutation.mutateAsync({ id: editingAppointmentId, payload });
             } else {
               await createMutation.mutateAsync({
                 ...payload,
+                customerId: customerIdFromSingle,
                 businessId,
                 source: 'manual',
                 status: 'confirmed',
@@ -352,7 +395,7 @@ export default function AgendaPage() {
           })}
         >
           <Select {...register('customerId')}>
-            <option value="">Cliente</option>
+            <option value="">Cliente (o crear nuevo al guardar)</option>
             {(customersQuery.data ?? []).map((customer) => (
               <option key={String(customer._id)} value={String(customer._id)}>
                 {String(customer.fullName)}
@@ -462,6 +505,86 @@ export default function AgendaPage() {
           </table>
         </div>
       </Card>
+
+      {showCustomerModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md space-y-3">
+            <h3 className="text-base font-semibold text-zinc-800">Crear cliente y continuar</h3>
+            <Input
+              placeholder="Nombre del cliente"
+              value={newCustomer.fullName}
+              onChange={(event) => setNewCustomer((prev) => ({ ...prev, fullName: event.target.value }))}
+            />
+            <Input
+              placeholder="Telefono (+569...)"
+              value={newCustomer.phone}
+              onChange={(event) => setNewCustomer((prev) => ({ ...prev, phone: event.target.value }))}
+            />
+            <Input
+              placeholder="Email (opcional)"
+              type="email"
+              value={newCustomer.email}
+              onChange={(event) => setNewCustomer((prev) => ({ ...prev, email: event.target.value }))}
+            />
+            <div className="flex gap-2">
+              <Button
+                disabled={createCustomerMutation.isPending}
+                onClick={async () => {
+                  if (!businessId || !pendingCreatePayload) return;
+                  if (!newCustomer.fullName.trim() || !newCustomer.phone.trim()) {
+                    setErrorDialogMessage('Para crear cliente debes completar nombre y telefono.');
+                    return;
+                  }
+
+                  const created = (await createCustomerMutation.mutateAsync({
+                    businessId,
+                    fullName: newCustomer.fullName.trim(),
+                    phone: newCustomer.phone.trim(),
+                    email: newCustomer.email.trim() || undefined,
+                    isActive: true,
+                  } as CustomerCreatePayload)) as Record<string, unknown>;
+
+                  const customerId = String(created._id ?? '');
+                  if (!customerId) {
+                    setErrorDialogMessage('No se pudo obtener el ID del cliente creado.');
+                    return;
+                  }
+
+                  await createMutation.mutateAsync({
+                    ...pendingCreatePayload,
+                    customerId,
+                  });
+                  setShowCustomerModal(false);
+                  setPendingCreatePayload(null);
+                  setNewCustomer({ fullName: '', phone: '', email: '' });
+                  await queryClient.invalidateQueries({ queryKey: ['customers', businessId] });
+                }}
+              >
+                Crear cliente y agendar
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCustomerModal(false);
+                  setPendingCreatePayload(null);
+                }}
+              >
+                Cancelar
+              </Button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
+
+      {errorDialogMessage ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-md space-y-3 border border-red-200 bg-red-50">
+            <h3 className="text-base font-semibold text-red-800">Error</h3>
+            <p className="text-sm text-red-700">{errorDialogMessage}</p>
+            <Button onClick={() => setErrorDialogMessage('')}>Cerrar</Button>
+          </Card>
+        </div>
+      ) : null}
     </div>
   );
 }

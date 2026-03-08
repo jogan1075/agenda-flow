@@ -324,26 +324,26 @@ export default function ProfesionalesPage() {
               <span className="font-medium">35%</span> de comision.
             </p>
 
-            <div className="mt-3 grid gap-3 md:grid-cols-4">
-              <div className="md:col-span-2">
-                <label className="flex w-full cursor-pointer items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-                  Seleccionar foto profesional
-                  <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
-                </label>
-                <p className="mt-1 truncate text-xs text-zinc-500">
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <label className="group relative h-24 w-24 cursor-pointer overflow-hidden rounded-full border border-zinc-300 bg-zinc-50">
+                {form.photoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center px-2 text-center text-[11px] text-zinc-500">
+                    Subir foto
+                  </div>
+                )}
+                <div className="absolute inset-0 hidden items-center justify-center bg-black/40 text-[11px] font-medium text-white group-hover:flex">
+                  Cambiar
+                </div>
+                <input className="hidden" type="file" accept="image/*" onChange={handlePhotoUpload} />
+              </label>
+              <div>
+                <p className="text-xs text-zinc-500">Haz click en la foto para subir o cambiar imagen.</p>
+                <p className="truncate text-xs text-zinc-500">
                   {selectedPhotoName || (form.photoUrl ? 'Imagen cargada' : 'Sin archivo seleccionado')}
                 </p>
-              </div>
-              <div className="md:col-span-2 flex items-center gap-3">
-                <div className="h-16 w-16 overflow-hidden rounded-full border border-zinc-200 bg-zinc-50">
-                  {form.photoUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={form.photoUrl} alt="Foto profesional" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-zinc-400">Sin foto</div>
-                  )}
-                </div>
-                <p className="text-xs text-zinc-500">La fotografia se guarda junto al perfil.</p>
               </div>
             </div>
           </>
