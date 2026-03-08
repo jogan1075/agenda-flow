@@ -1,6 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { BusinessesService } from '../businesses/businesses.service';
 import { UsersService } from '../users/users.service';
 import { CreateOwnerBySuperAdminDto } from './dto/create-owner-by-superadmin.dto';
 import { LoginDto } from './dto/login.dto';
@@ -11,6 +12,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly businessesService: BusinessesService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -47,6 +49,13 @@ export class AuthService {
     const isPasswordValid = await bcrypt.compare(dto.password, user.passwordHash);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (user.role !== 'super_admin' && user.businessId) {
+      const business = await this.businessesService.findById(user.businessId);
+      if (!business || business.isEnabled === false) {
+        throw new UnauthorizedException('Negocio deshabilitado por estado de suscripcion');
+      }
     }
 
     return this.signToken({

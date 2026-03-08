@@ -41,12 +41,6 @@ type ConfigFormValues = {
   whatsappLocationUrl: string;
 };
 
-const categoryLabels: Record<string, string> = {
-  ESTETICA_Y_BELLEZA: 'Estetica y Belleza',
-  SALUD: 'Salud',
-  BIENESTAR: 'Bienestar',
-};
-
 const days: Array<{ key: OpeningHourForm['day']; label: string }> = [
   { key: 'monday', label: 'Lunes' },
   { key: 'tuesday', label: 'Martes' },
@@ -192,6 +186,8 @@ export default function ConfiguracionPage() {
     return catalog[form.businessCategory] ?? [];
   }, [catalogQuery.data, form.businessCategory]);
 
+  const categories = useMemo(() => Object.keys(catalogQuery.data ?? {}), [catalogQuery.data]);
+
   if (!canManage) {
     return (
       <div className="space-y-6">
@@ -311,9 +307,9 @@ export default function ConfiguracionPage() {
             }
           >
             <option value="">Selecciona categoria</option>
-            {Object.entries(categoryLabels).map(([value, label]) => (
+            {categories.map((value) => (
               <option key={value} value={value}>
-                {label}
+                {value.replaceAll('_', ' ')}
               </option>
             ))}
           </Select>

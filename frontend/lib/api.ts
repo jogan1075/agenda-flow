@@ -82,6 +82,59 @@ export const api = {
   getBusinessTypeCatalog() {
     return request<Record<string, string[]>>('/businesses/catalog/types');
   },
+  getBusinessTypeCatalogForSuperAdmin(token: string) {
+    return request<Array<Record<string, unknown>>>('/businesses/admin/catalog', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+  createBusinessCategory(
+    payload: { key?: string; label: string },
+    token: string,
+  ) {
+    return request('/businesses/admin/catalog/categories', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  addBusinessSubcategory(categoryKey: string, payload: { name: string }, token: string) {
+    return request(`/businesses/admin/catalog/categories/${categoryKey}/subcategories`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  updateBusinessCategory(categoryKey: string, payload: Record<string, unknown>, token: string) {
+    return request(`/businesses/admin/catalog/categories/${categoryKey}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  },
+  listBusinessesForSuperAdmin(token: string) {
+    return request<Array<Record<string, unknown>>>('/businesses/admin/list', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+  updateBusinessSubscription(id: string, payload: Record<string, unknown>, token: string) {
+    return request(`/businesses/admin/${id}/subscription`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  },
   updateBusiness(id: string, payload: Record<string, unknown>) {
     return request(`/businesses/${id}`, {
       method: 'PATCH',

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { BUSINESS_CATEGORIES, BusinessCategory } from './business-types';
+import { BILLING_PLANS, BILLING_STATUSES } from './dto/update-business-subscription.dto';
 
 export type BusinessDocument = HydratedDocument<Business>;
 
@@ -52,8 +52,8 @@ export class Business {
   @Prop({ default: 'CLP' })
   currency: string;
 
-  @Prop({ type: String, enum: BUSINESS_CATEGORIES })
-  businessCategory?: BusinessCategory;
+  @Prop({ type: String })
+  businessCategory?: string;
 
   @Prop({ type: String })
   businessSubcategory?: string;
@@ -78,6 +78,24 @@ export class Business {
 
   @Prop({ default: true })
   whatsappAiEnabled: boolean;
+
+  @Prop({ type: String, enum: BILLING_PLANS, default: 'trial' })
+  billingPlan: (typeof BILLING_PLANS)[number];
+
+  @Prop({ type: String, enum: BILLING_STATUSES, default: 'trialing' })
+  billingStatus: (typeof BILLING_STATUSES)[number];
+
+  @Prop({ type: Date })
+  trialEndsAt?: Date;
+
+  @Prop({ type: Date })
+  subscriptionStartsAt?: Date;
+
+  @Prop({ type: Date })
+  subscriptionEndsAt?: Date;
+
+  @Prop({ default: true })
+  isEnabled: boolean;
 }
 
 export const BusinessSchema = SchemaFactory.createForClass(Business);

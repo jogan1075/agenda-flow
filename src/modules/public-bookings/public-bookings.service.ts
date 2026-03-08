@@ -42,6 +42,9 @@ export class PublicBookingsService {
     ]);
 
     if (!business) throw new NotFoundException('Negocio no encontrado');
+    if (business.isEnabled === false) {
+      throw new BadRequestException('Este negocio esta temporalmente deshabilitado');
+    }
     if (!service) throw new NotFoundException('Servicio no encontrado');
     if (!professional) throw new NotFoundException('Profesional no encontrado');
 
