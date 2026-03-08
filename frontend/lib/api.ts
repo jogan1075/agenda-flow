@@ -1,4 +1,6 @@
-const rawApiUrl = String(process.env.NEXT_PUBLIC_API_URL ?? '').trim();
+const rawApiUrl = String(process.env.NEXT_PUBLIC_API_URL ?? '')
+  .trim()
+  .replace(/^['"]|['"]$/g, '');
 const normalizedBaseUrl = rawApiUrl
   ? rawApiUrl.replace(/\/+$/, '')
   : 'http://localhost:3000/api';
@@ -29,14 +31,20 @@ export type RegisterPayload = {
 };
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {}),
-    },
-    cache: 'no-store',
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers ?? {}),
+      },
+      cache: 'no-store',
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : 'network_error';
+    throw new ApiError(`No se pudo conectar con la API (${API_URL}). Detalle: ${detail}`, 0);
+  }
 
   if (!response.ok) {
     const text = await response.text();
