@@ -1,6 +1,6 @@
-import { IsArray, IsBoolean, IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { BUSINESS_CATEGORIES } from '../business-types';
+import { IsArray, IsBoolean, IsDateString, IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { BILLING_PLANS, BILLING_STATUSES } from './update-business-subscription.dto';
 
 class BranchDto {
   @IsString()
@@ -67,7 +67,7 @@ export class CreateBusinessDto {
   currency?: string;
 
   @IsOptional()
-  @IsIn(BUSINESS_CATEGORIES)
+  @IsString()
   businessCategory?: string;
 
   @IsOptional()
@@ -105,4 +105,28 @@ export class CreateBusinessDto {
   @IsOptional()
   @IsBoolean()
   whatsappAiEnabled?: boolean;
+
+  @IsOptional()
+  @IsIn(BILLING_PLANS)
+  billingPlan?: (typeof BILLING_PLANS)[number];
+
+  @IsOptional()
+  @IsIn(BILLING_STATUSES)
+  billingStatus?: (typeof BILLING_STATUSES)[number];
+
+  @IsOptional()
+  @IsDateString()
+  trialEndsAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  subscriptionStartsAt?: string;
+
+  @IsOptional()
+  @IsDateString()
+  subscriptionEndsAt?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isEnabled?: boolean;
 }
