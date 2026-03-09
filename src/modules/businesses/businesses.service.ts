@@ -271,19 +271,48 @@ export class BusinessesService implements OnModuleInit {
   }
 
   private async ensureCatalogSeed() {
-    const count = await this.businessTypeCatalogModel.estimatedDocumentCount();
-    if (count > 0) {
+    const existing = await this.businessTypeCatalogModel.find().lean();
+    if (existing.length === 0) {
+      await this.businessTypeCatalogModel.insertMany(
+        DEFAULT_BUSINESS_TYPE_CATALOG.map((item) => ({
+          key: item.key,
+          label: item.label,
+          subcategories: item.subcategories,
+          isActive: true,
+        })),
+      );
       return;
     }
 
-    await this.businessTypeCatalogModel.insertMany(
-      DEFAULT_BUSINESS_TYPE_CATALOG.map((item) => ({
-        key: item.key,
-        label: item.label,
-        subcategories: item.subcategories,
-        isActive: true,
-      })),
-    );
+    const byKey = new Map(existing.map((item) => [item.key, item]));
+
+    for (const item of DEFAULT_BUSINESS_TYPE_CATALOG) {
+      const current = byKey.get(item.key);
+      if (!current) {
+        await this.businessTypeCatalogModel.create({
+          key: item.key,
+          label: item.label,
+          subcategories: item.subcategories,
+          isActive: true,
+        });
+        continue;
+      }
+
+      const currentSubs = new Set((current.subcategories ?? []).map((sub) => String(sub)));
+      const mergedSubs = Array.from(new Set([...currentSubs, ...item.subcategories]));
+      const shouldUpdateLabel = current.label !== item.label;
+      const shouldUpdateSubs = mergedSubs.length !== currentSubs.size;
+
+      if (shouldUpdateLabel || shouldUpdateSubs) {
+        await this.businessTypeCatalogModel.updateOne(
+          { key: item.key },
+          {
+            ...(shouldUpdateLabel ? { label: item.label } : {}),
+            ...(shouldUpdateSubs ? { subcategories: mergedSubs } : {}),
+          },
+        );
+      }
+    }
   }
 
   private normalizeCategoryKey(input: string) {
