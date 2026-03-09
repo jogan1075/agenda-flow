@@ -67,6 +67,15 @@ export class CreateBusinessDto {
   currency?: string;
 
   @IsOptional()
+  @IsIn(['manual', 'mercadopago'])
+  paymentMode?: 'manual' | 'mercadopago';
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(['cash', 'transfer'], { each: true })
+  manualPaymentMethods?: Array<'cash' | 'transfer'>;
+
+  @IsOptional()
   @IsString()
   businessCategory?: string;
 

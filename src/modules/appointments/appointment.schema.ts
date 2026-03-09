@@ -23,6 +23,9 @@ export class Appointment {
   @Prop({ required: true, enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'] })
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 
+  @Prop({ default: false })
+  isPaid: boolean;
+
   @Prop({ required: true })
   startsAt: Date;
 

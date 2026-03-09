@@ -21,6 +21,7 @@ type AppointmentPayload = {
   serviceId: string;
   startsAt: string;
   endsAt: string;
+  isPaid: boolean;
 };
 
 type CustomerCreatePayload = {
@@ -79,6 +80,7 @@ export default function AgendaPage() {
       serviceId: '',
       startsAt: '',
       endsAt: '',
+      isPaid: false,
     },
   });
 
@@ -126,6 +128,17 @@ export default function AgendaPage() {
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
       setErrorDialogMessage(`No se pudo eliminar/cancelar la cita: ${detail}`);
+    },
+  });
+
+  const paymentMutation = useMutation({
+    mutationFn: ({ id, isPaid }: { id: string; isPaid: boolean }) => api.updateAppointment(id, { isPaid }),
+    onSuccess: async () => {
+      await refreshAppointments();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setErrorDialogMessage(`No se pudo actualizar el pago: ${detail}`);
     },
   });
   const createCustomerMutation = useMutation({
@@ -268,6 +281,7 @@ export default function AgendaPage() {
     setValue('serviceId', String(appointment.serviceId));
     setValue('startsAt', toLocalDatetimeInput(startsAt));
     setValue('endsAt', toLocalDatetimeInput(endsAt));
+    setValue('isPaid', Boolean(appointment.isPaid));
     setFormMessage('Modo edición activo. Selecciona nuevo bloque y guarda cambios.');
   };
 
@@ -371,6 +385,7 @@ export default function AgendaPage() {
             const serviceId = String(values.serviceId ?? '').trim();
             const startsAt = String(values.startsAt ?? '').trim();
             const endsAt = String(values.endsAt ?? '').trim();
+            const isPaid = Boolean(values.isPaid);
 
             if (!professionalId || !serviceId || !startsAt || !endsAt) {
               setFormMessage('Completa profesional, servicio, inicio y fin de la cita.');
@@ -383,6 +398,7 @@ export default function AgendaPage() {
               serviceId,
               startsAt: new Date(startsAt).toISOString(),
               endsAt: new Date(endsAt).toISOString(),
+              isPaid,
             };
 
             if (!editingAppointmentId && !customerId) {
@@ -449,6 +465,10 @@ export default function AgendaPage() {
             <Input type="datetime-local" {...register('startsAt')} />
             <Input type="datetime-local" {...register('endsAt')} />
           </div>
+          <label className="flex items-center gap-2 text-xs text-zinc-600">
+            <input type="checkbox" {...register('isPaid')} />
+            Marcar como pagado
+          </label>
           <Button className="md:col-span-2" disabled={createMutation.isPending || updateMutation.isPending}>
             {editingAppointmentId ? 'Guardar cambios' : 'Crear Cita'}
           </Button>
@@ -481,6 +501,7 @@ export default function AgendaPage() {
               <tr>
                 <th className="py-2">Hora</th>
                 <th>Cliente</th>
+                <th>Pago</th>
                 <th>Estado</th>
                 <th>Origen</th>
                 <th>Acciones</th>
@@ -497,6 +518,21 @@ export default function AgendaPage() {
                 >
                   <td className="py-2">{new Date(String(appointment.startsAt)).toLocaleString('es-CL')}</td>
                   <td>{customersById.get(String(appointment.customerId)) ?? String(appointment.customerId)}</td>
+                  <td>
+                    <button
+                      type="button"
+                      className={cn(
+                        'rounded-full px-2 py-1 text-xs font-medium',
+                        appointment.isPaid ? 'bg-emerald-50 text-emerald-700' : 'bg-zinc-100 text-zinc-600',
+                      )}
+                      disabled={paymentMutation.isPending}
+                      onClick={() =>
+                        paymentMutation.mutateAsync({ id: String(appointment._id), isPaid: !appointment.isPaid })
+                      }
+                    >
+                      {appointment.isPaid ? 'Pagado' : 'No pagado'}
+                    </button>
+                  </td>
                   <td>{String(appointment.status)}</td>
                   <td>{String(appointment.source)}</td>
                   <td>

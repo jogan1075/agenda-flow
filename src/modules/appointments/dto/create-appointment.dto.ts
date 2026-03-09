@@ -1,4 +1,4 @@
-import { IsDateString, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateAppointmentDto {
   @IsString()
@@ -22,6 +22,10 @@ export class CreateAppointmentDto {
 
   @IsIn(['pending', 'confirmed', 'cancelled', 'completed', 'no_show'])
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
+
+  @IsOptional()
+  @IsBoolean()
+  isPaid?: boolean;
 
   @IsDateString()
   startsAt: string;

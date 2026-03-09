@@ -34,6 +34,8 @@ type ConfigFormValues = {
   address: string;
   timezone: string;
   currency: string;
+  paymentMode: 'manual' | 'mercadopago';
+  manualPaymentMethods: Array<'cash' | 'transfer'>;
   businessCategory: string;
   businessSubcategory: string;
   whatsappWelcomeMessage: string;
@@ -124,6 +126,8 @@ export default function ConfiguracionPage() {
     address: '',
     timezone: 'America/Santiago',
     currency: 'CLP',
+    paymentMode: 'manual',
+    manualPaymentMethods: ['cash', 'transfer'],
     businessCategory: '',
     businessSubcategory: '',
     whatsappWelcomeMessage: '',
@@ -146,6 +150,12 @@ export default function ConfiguracionPage() {
       address: String(business.address ?? ''),
       timezone: String(business.timezone ?? 'America/Santiago'),
       currency: String(business.currency ?? 'CLP'),
+      paymentMode: String(business.paymentMode ?? 'manual') === 'mercadopago' ? 'mercadopago' : 'manual',
+      manualPaymentMethods: Array.isArray(business.manualPaymentMethods)
+        ? (business.manualPaymentMethods as Array<string>)
+            .map((method) => (method === 'transfer' ? 'transfer' : method === 'cash' ? 'cash' : null))
+            .filter((method): method is 'cash' | 'transfer' => !!method)
+        : ['cash', 'transfer'],
       businessCategory: String(business.businessCategory ?? ''),
       businessSubcategory: String(business.businessSubcategory ?? ''),
       whatsappWelcomeMessage: String(business.whatsappWelcomeMessage ?? ''),
@@ -247,6 +257,11 @@ export default function ConfiguracionPage() {
                 address: form.address.trim() || undefined,
                 timezone: form.timezone,
                 currency: form.currency,
+                paymentMode: form.paymentMode,
+                manualPaymentMethods:
+                  form.paymentMode === 'manual' && form.manualPaymentMethods.length === 0
+                    ? ['cash']
+                    : form.manualPaymentMethods,
               });
             }}
           >
@@ -296,6 +311,64 @@ export default function ConfiguracionPage() {
             onChange={(event) => setForm((prev) => ({ ...prev, currency: event.target.value.toUpperCase() }))}
           />
           <Input placeholder="Business ID" value={businessId} disabled />
+        </div>
+      </Card>
+
+      <Card className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-700">Forma de pago</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Select
+            value={form.paymentMode}
+            onChange={(event) => {
+              const mode = event.target.value === 'mercadopago' ? 'mercadopago' : 'manual';
+              setForm((prev) => ({
+                ...prev,
+                paymentMode: mode,
+                manualPaymentMethods: mode === 'manual' ? prev.manualPaymentMethods : [],
+              }));
+            }}
+          >
+            <option value="manual">Manual (efectivo o transferencia)</option>
+            <option value="mercadopago">Medio de pago (MercadoPago)</option>
+          </Select>
+          {form.paymentMode === 'manual' ? (
+            <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 px-3 py-2">
+              <label className="flex items-center gap-2 text-xs text-zinc-600">
+                <input
+                  type="checkbox"
+                  checked={form.manualPaymentMethods.includes('cash')}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      manualPaymentMethods: event.target.checked
+                        ? Array.from(new Set([...prev.manualPaymentMethods, 'cash']))
+                        : prev.manualPaymentMethods.filter((item) => item !== 'cash'),
+                    }))
+                  }
+                />
+                Efectivo
+              </label>
+              <label className="flex items-center gap-2 text-xs text-zinc-600">
+                <input
+                  type="checkbox"
+                  checked={form.manualPaymentMethods.includes('transfer')}
+                  onChange={(event) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      manualPaymentMethods: event.target.checked
+                        ? Array.from(new Set([...prev.manualPaymentMethods, 'transfer']))
+                        : prev.manualPaymentMethods.filter((item) => item !== 'transfer'),
+                    }))
+                  }
+                />
+                Transferencia
+              </label>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+              Las reservas se pagaran por MercadoPago.
+            </div>
+          )}
         </div>
       </Card>
 
@@ -478,9 +551,14 @@ export default function ConfiguracionPage() {
             disabled={updateMutation.isPending}
             onClick={() => {
               const { businessEmail, ...restForm } = form;
+              const manualPaymentMethods =
+                restForm.paymentMode === 'manual' && restForm.manualPaymentMethods.length === 0
+                  ? ['cash']
+                  : restForm.manualPaymentMethods;
               const payload = {
                 ...restForm,
                 email: businessEmail || undefined,
+                manualPaymentMethods,
                 branches: branches.filter((branch) => branch.name.trim().length > 0),
                 openingHours,
               };

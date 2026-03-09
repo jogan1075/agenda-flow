@@ -52,6 +52,12 @@ export class Business {
   @Prop({ default: 'CLP' })
   currency: string;
 
+  @Prop({ type: String, enum: ['manual', 'mercadopago'], default: 'manual' })
+  paymentMode: 'manual' | 'mercadopago';
+
+  @Prop({ type: [String], default: ['cash', 'transfer'] })
+  manualPaymentMethods: Array<'cash' | 'transfer'>;
+
   @Prop({ type: String })
   businessCategory?: string;
 
