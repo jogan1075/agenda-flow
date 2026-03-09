@@ -28,11 +28,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const hasBusiness = !!session?.businessId;
   const canManageSettings = role === 'owner' || role === 'admin' || role === 'super_admin';
   const baseNav = hasBusiness ? nav : [];
-  const navItems = [
-    ...baseNav,
-    ...(canManageSettings ? [{ href: '/configuracion', label: 'Configuracion', icon: MessageSquare }] : []),
-    ...(role === 'super_admin' ? superAdminNav : []),
-  ];
+  const navItems = isHydrated
+    ? [
+        ...baseNav,
+        ...(canManageSettings ? [{ href: '/configuracion', label: 'Configuracion', icon: MessageSquare }] : []),
+        ...(role === 'super_admin' ? superAdminNav : []),
+      ]
+    : [];
 
   useEffect(() => {
     setSession(getSession());
