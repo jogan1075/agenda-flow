@@ -63,7 +63,10 @@ export class BusinessesService implements OnModuleInit {
   }
 
   findById(id: string) {
-    return this.businessModel.findById(id);
+    return this.businessModel.findById(id).select({
+      mercadoPagoAccessToken: 0,
+      mercadoPagoWebhookSecret: 0,
+    });
   }
 
   async findAllForSuperAdmin() {

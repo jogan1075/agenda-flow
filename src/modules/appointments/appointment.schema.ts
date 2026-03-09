@@ -23,6 +23,24 @@ export class Appointment {
   @Prop({ required: true, enum: ['pending', 'confirmed', 'cancelled', 'completed', 'no_show'] })
   status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no_show';
 
+  @Prop({ default: false })
+  isPaid: boolean;
+
+  @Prop({ type: String, enum: ['manual', 'mercadopago'], default: 'manual' })
+  paymentProvider: 'manual' | 'mercadopago';
+
+  @Prop()
+  paymentPreferenceId?: string;
+
+  @Prop()
+  paymentId?: string;
+
+  @Prop()
+  paymentStatus?: string;
+
+  @Prop({ type: Date })
+  paidAt?: Date;
+
   @Prop({ required: true })
   startsAt: Date;
 

@@ -7,6 +7,7 @@ import { Professional, ProfessionalSchema } from '../professionals/professional.
 import { RemindersModule } from '../reminders/reminders.module';
 import { ServiceItem, ServiceItemSchema } from '../services/service.schema';
 import { EmailService } from './email.service';
+import { MercadoPagoService } from './mercadopago.service';
 import { PublicBookingsController } from './public-bookings.controller';
 import { PublicBookingsService } from './public-bookings.service';
 
@@ -22,6 +23,6 @@ import { PublicBookingsService } from './public-bookings.service';
     RemindersModule,
   ],
   controllers: [PublicBookingsController],
-  providers: [PublicBookingsService, EmailService],
+  providers: [PublicBookingsService, EmailService, MercadoPagoService],
 })
 export class PublicBookingsModule {}

@@ -266,6 +266,12 @@ export default function ReservasPage() {
     },
     onSuccess: (result) => {
       setSummary(result.summary as Record<string, unknown>);
+      if (result.payment?.initPoint) {
+        setMessage('Reserva pendiente de pago. Redirigiendo a MercadoPago...');
+        window.location.assign(result.payment.initPoint);
+        return;
+      }
+
       const notifications = result.notifications;
       const waText = notifications?.whatsappSent ? 'WhatsApp enviado' : 'WhatsApp no enviado';
       const emailText = notifications?.emailSent

@@ -67,6 +67,27 @@ export class CreateBusinessDto {
   currency?: string;
 
   @IsOptional()
+  @IsIn(['manual', 'mercadopago'])
+  paymentMode?: 'manual' | 'mercadopago';
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(['cash', 'transfer'], { each: true })
+  manualPaymentMethods?: Array<'cash' | 'transfer'>;
+
+  @IsOptional()
+  @IsString()
+  mercadoPagoAccessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  mercadoPagoPublicKey?: string;
+
+  @IsOptional()
+  @IsString()
+  mercadoPagoWebhookSecret?: string;
+
+  @IsOptional()
   @IsString()
   businessCategory?: string;
 
