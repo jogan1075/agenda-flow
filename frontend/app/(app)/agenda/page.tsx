@@ -28,7 +28,6 @@ type CustomerCreatePayload = {
   fullName: string;
   phone: string;
   email?: string;
-  isActive: boolean;
 };
 
 export default function AgendaPage() {
@@ -563,7 +562,6 @@ export default function AgendaPage() {
                     fullName: newCustomer.fullName.trim(),
                     phone: newCustomer.phone.trim(),
                     email: newCustomer.email.trim() || undefined,
-                    isActive: true,
                   } as CustomerCreatePayload)) as Record<string, unknown>;
 
                   const customerId = String(created._id ?? '');
