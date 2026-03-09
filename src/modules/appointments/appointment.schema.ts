@@ -26,6 +26,21 @@ export class Appointment {
   @Prop({ default: false })
   isPaid: boolean;
 
+  @Prop({ type: String, enum: ['manual', 'mercadopago'], default: 'manual' })
+  paymentProvider: 'manual' | 'mercadopago';
+
+  @Prop()
+  paymentPreferenceId?: string;
+
+  @Prop()
+  paymentId?: string;
+
+  @Prop()
+  paymentStatus?: string;
+
+  @Prop({ type: Date })
+  paidAt?: Date;
+
   @Prop({ required: true })
   startsAt: Date;
 

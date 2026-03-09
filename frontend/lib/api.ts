@@ -207,6 +207,7 @@ export const api = {
       appointment: Record<string, unknown>;
       summary: Record<string, unknown>;
       notifications: { whatsappSent: boolean; emailSent: boolean; emailReason?: string };
+      payment?: { provider: string; preferenceId?: string; initPoint?: string; sandboxInitPoint?: string };
     }>('/public-bookings/reserve', { method: 'POST', body: JSON.stringify(payload) });
   },
   basicReport(businessId: string, from: string, to: string) {

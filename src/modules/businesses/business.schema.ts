@@ -58,6 +58,15 @@ export class Business {
   @Prop({ type: [String], default: ['cash', 'transfer'] })
   manualPaymentMethods: Array<'cash' | 'transfer'>;
 
+  @Prop()
+  mercadoPagoAccessToken?: string;
+
+  @Prop()
+  mercadoPagoPublicKey?: string;
+
+  @Prop()
+  mercadoPagoWebhookSecret?: string;
+
   @Prop({ type: String })
   businessCategory?: string;
 

@@ -36,6 +36,9 @@ type ConfigFormValues = {
   currency: string;
   paymentMode: 'manual' | 'mercadopago';
   manualPaymentMethods: Array<'cash' | 'transfer'>;
+  mercadoPagoAccessToken: string;
+  mercadoPagoPublicKey: string;
+  mercadoPagoWebhookSecret: string;
   businessCategory: string;
   businessSubcategory: string;
   whatsappWelcomeMessage: string;
@@ -128,6 +131,9 @@ export default function ConfiguracionPage() {
     currency: 'CLP',
     paymentMode: 'manual',
     manualPaymentMethods: ['cash', 'transfer'],
+    mercadoPagoAccessToken: '',
+    mercadoPagoPublicKey: '',
+    mercadoPagoWebhookSecret: '',
     businessCategory: '',
     businessSubcategory: '',
     whatsappWelcomeMessage: '',
@@ -156,6 +162,9 @@ export default function ConfiguracionPage() {
             .map((method) => (method === 'transfer' ? 'transfer' : method === 'cash' ? 'cash' : null))
             .filter((method): method is 'cash' | 'transfer' => !!method)
         : ['cash', 'transfer'],
+      mercadoPagoAccessToken: '',
+      mercadoPagoPublicKey: String(business.mercadoPagoPublicKey ?? ''),
+      mercadoPagoWebhookSecret: '',
       businessCategory: String(business.businessCategory ?? ''),
       businessSubcategory: String(business.businessSubcategory ?? ''),
       whatsappWelcomeMessage: String(business.whatsappWelcomeMessage ?? ''),
@@ -262,6 +271,15 @@ export default function ConfiguracionPage() {
                   form.paymentMode === 'manual' && form.manualPaymentMethods.length === 0
                     ? ['cash']
                     : form.manualPaymentMethods,
+                ...(form.mercadoPagoAccessToken.trim()
+                  ? { mercadoPagoAccessToken: form.mercadoPagoAccessToken.trim() }
+                  : {}),
+                ...(form.mercadoPagoPublicKey.trim()
+                  ? { mercadoPagoPublicKey: form.mercadoPagoPublicKey.trim() }
+                  : {}),
+                ...(form.mercadoPagoWebhookSecret.trim()
+                  ? { mercadoPagoWebhookSecret: form.mercadoPagoWebhookSecret.trim() }
+                  : {}),
               });
             }}
           >
@@ -365,8 +383,30 @@ export default function ConfiguracionPage() {
               </label>
             </div>
           ) : (
-            <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-              Las reservas se pagaran por MercadoPago.
+            <div className="space-y-2">
+              <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                Las reservas se pagaran por MercadoPago.
+              </div>
+              <Input
+                placeholder="MercadoPago Access Token"
+                type="password"
+                value={form.mercadoPagoAccessToken}
+                onChange={(event) => setForm((prev) => ({ ...prev, mercadoPagoAccessToken: event.target.value }))}
+              />
+              <Input
+                placeholder="MercadoPago Public Key"
+                value={form.mercadoPagoPublicKey}
+                onChange={(event) => setForm((prev) => ({ ...prev, mercadoPagoPublicKey: event.target.value }))}
+              />
+              <Input
+                placeholder="MercadoPago Webhook Secret"
+                type="password"
+                value={form.mercadoPagoWebhookSecret}
+                onChange={(event) => setForm((prev) => ({ ...prev, mercadoPagoWebhookSecret: event.target.value }))}
+              />
+              <p className="text-xs text-zinc-500">
+                Si no deseas actualizar credenciales, deja los campos en blanco.
+              </p>
             </div>
           )}
         </div>
@@ -555,12 +595,23 @@ export default function ConfiguracionPage() {
                 restForm.paymentMode === 'manual' && restForm.manualPaymentMethods.length === 0
                   ? ['cash']
                   : restForm.manualPaymentMethods;
+              const credentialPatch: Record<string, unknown> = {};
+              if (restForm.mercadoPagoAccessToken.trim()) {
+                credentialPatch.mercadoPagoAccessToken = restForm.mercadoPagoAccessToken.trim();
+              }
+              if (restForm.mercadoPagoPublicKey.trim()) {
+                credentialPatch.mercadoPagoPublicKey = restForm.mercadoPagoPublicKey.trim();
+              }
+              if (restForm.mercadoPagoWebhookSecret.trim()) {
+                credentialPatch.mercadoPagoWebhookSecret = restForm.mercadoPagoWebhookSecret.trim();
+              }
               const payload = {
                 ...restForm,
                 email: businessEmail || undefined,
                 manualPaymentMethods,
                 branches: branches.filter((branch) => branch.name.trim().length > 0),
                 openingHours,
+                ...credentialPatch,
               };
               updateMutation.mutate(payload);
             }}

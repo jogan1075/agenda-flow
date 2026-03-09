@@ -77,6 +77,18 @@ export class CreateBusinessDto {
 
   @IsOptional()
   @IsString()
+  mercadoPagoAccessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  mercadoPagoPublicKey?: string;
+
+  @IsOptional()
+  @IsString()
+  mercadoPagoWebhookSecret?: string;
+
+  @IsOptional()
+  @IsString()
   businessCategory?: string;
 
   @IsOptional()
