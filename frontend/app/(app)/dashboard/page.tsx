@@ -7,7 +7,6 @@ import { Card } from '@/components/ui/card';
 import { SectionHeader } from '@/components/section-header';
 import { Button } from '@/components/ui/button';
 import { api } from '@/lib/api';
-import { getSession } from '@/lib/session';
 import { useBusinessId } from '@/lib/use-business-id';
 
 type SalesRow = {
@@ -33,7 +32,6 @@ function statusTag(status: string) {
 
 export default function DashboardPage() {
   const businessId = useBusinessId();
-  const sessionBusinessId = getSession()?.businessId ?? '';
   const from = formatISO(addDays(new Date(), -30), { representation: 'date' }) + 'T00:00:00.000Z';
   const to = formatISO(addDays(new Date(), 1), { representation: 'date' }) + 'T23:59:59.000Z';
 
@@ -161,7 +159,12 @@ export default function DashboardPage() {
           <p className="text-sm text-zinc-600">Comparte este enlace para que tus clientes reserven online.</p>
           <Button
             variant="outline"
-            onClick={() => window.open(`/reservas?businessId=${encodeURIComponent(sessionBusinessId || businessId)}`, '_blank')}
+            onClick={() => {
+              if (businessId) {
+                window.localStorage.setItem('public_booking_business_id', businessId);
+              }
+              window.open('/reservas', '_blank');
+            }}
           >
             Ver pagina de reservas
           </Button>

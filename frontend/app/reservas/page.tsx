@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { addDays, formatISO } from 'date-fns';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -66,14 +66,14 @@ function weekOptionsFromToday() {
 
 export default function ReservasPage() {
   const queryClient = useQueryClient();
-  const [businessIdFromQuery] = useState(() => {
+  const [businessIdFromStorage] = useState(() => {
     const fromEnv = process.env.NEXT_PUBLIC_DEFAULT_BUSINESS_ID ?? '';
     if (typeof window === 'undefined') return '';
-    return new URLSearchParams(window.location.search).get('businessId') ?? fromEnv;
+    return window.localStorage.getItem('public_booking_business_id') ?? fromEnv;
   });
 
   const [form, setForm] = useState<BookingForm>({
-    businessId: businessIdFromQuery,
+    businessId: businessIdFromStorage,
     fullName: '',
     phone: '',
     email: '',
@@ -126,8 +126,45 @@ export default function ReservasPage() {
     () => (professionalsQuery.data ?? []).find((professional) => String(professional._id) === form.professionalId),
     [professionalsQuery.data, form.professionalId],
   );
+  const availableServices = useMemo(() => {
+    if (!selectedProfessional) {
+      return servicesQuery.data ?? [];
+    }
+
+    const serviceIds = new Set(
+      ((selectedProfessional.serviceIds as Array<unknown> | undefined) ?? []).map((serviceId) => String(serviceId)),
+    );
+    if (serviceIds.size === 0) {
+      return servicesQuery.data ?? [];
+    }
+
+    return (servicesQuery.data ?? []).filter((service) => serviceIds.has(String(service._id)));
+  }, [selectedProfessional, servicesQuery.data]);
 
   const weekDays = useMemo(() => weekOptionsFromToday(), []);
+
+  useEffect(() => {
+    if (!selectedProfessional) return;
+
+    const professionalServiceIds = Array.from(
+      new Set(
+        ((selectedProfessional.serviceIds as Array<unknown> | undefined) ?? []).map((serviceId) => String(serviceId)),
+      ),
+    );
+    if (professionalServiceIds.length === 1) {
+      const [onlyServiceId] = professionalServiceIds;
+      if (form.serviceId !== onlyServiceId) {
+        setForm((prev) => ({ ...prev, serviceId: onlyServiceId }));
+        setSelectedSlot(null);
+      }
+      return;
+    }
+
+    if (professionalServiceIds.length > 1 && form.serviceId && !professionalServiceIds.includes(form.serviceId)) {
+      setForm((prev) => ({ ...prev, serviceId: '' }));
+      setSelectedSlot(null);
+    }
+  }, [selectedProfessional, form.serviceId]);
 
   const preselectedDay = useMemo(() => {
     if (!selectedService || !form.professionalId) return todayIso;
@@ -309,7 +346,7 @@ export default function ReservasPage() {
             }}
           >
             <option value="">Selecciona servicio</option>
-            {(servicesQuery.data ?? []).map((service) => (
+            {availableServices.map((service) => (
               <option key={String(service._id)} value={String(service._id)}>
                 {String(service.name)} - {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(Number(service.price ?? 0))} ({String(service.durationMinutes)} min)
               </option>
