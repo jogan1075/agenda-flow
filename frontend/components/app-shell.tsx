@@ -22,7 +22,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const session = getSession();
+  const [session, setSession] = useState<ReturnType<typeof getSession> | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const role = session?.role ?? 'staff';
   const hasBusiness = !!session?.businessId;
   const canManageSettings = role === 'owner' || role === 'admin' || role === 'super_admin';
@@ -34,9 +35,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   ];
 
   useEffect(() => {
-    const session = getSession();
+    setSession(getSession());
+    setIsHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated) return;
     if (!session) router.replace('/login');
-  }, [router]);
+  }, [isHydrated, session, router]);
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_0%_0%,#dbeafe_0,#f8fafc_40%,#fafaf9_100%)]">
