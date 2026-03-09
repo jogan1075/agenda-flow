@@ -31,4 +31,16 @@ export const DEFAULT_BUSINESS_TYPE_CATALOG: Array<{ key: string; label: string; 
     label: 'Bienestar',
     subcategories: ['Nutricionistas', 'Centros deportivos', 'Centros de Crossfit', 'Estudios de pilates', 'Estudios de yoga'],
   },
+  {
+    key: 'SALUD_Y_EDUCACION',
+    label: 'Salud y educacion',
+    subcategories: [
+      'Neurodesarrollo',
+      'Inclusion social',
+      'Fonoaudiologia',
+      'Terapia Ocupacional',
+      'Psicopedagogia',
+      'Refuerzo Escolar',
+    ],
+  },
 ];
