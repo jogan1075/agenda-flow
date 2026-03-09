@@ -33,8 +33,14 @@ export default function HomePage() {
               </div>
             </div>
             <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
+              <a href="#negocios" className="transition hover:text-slate-900">
+                Negocios
+              </a>
               <a href="#beneficios" className="transition hover:text-slate-900">
                 Beneficios
+              </a>
+              <a href="#funcionalidades" className="transition hover:text-slate-900">
+                Funcionalidades
               </a>
               <a href="#soluciones" className="transition hover:text-slate-900">
                 Soluciones
@@ -134,6 +140,68 @@ export default function HomePage() {
           </div>
         </section>
 
+        <section id="negocios" className="relative mx-auto max-w-6xl px-6 pb-16">
+          <div className="rounded-3xl border border-white/70 bg-white/90 p-8 shadow-sm">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Negocios</p>
+                <h2 className="mt-2 text-3xl font-semibold text-slate-900">AgendaFlow se adapta a tu industria</h2>
+              </div>
+              <p className="text-sm text-slate-500">Selecciona tu rubro y configura servicios en minutos.</p>
+            </div>
+            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+              {[
+                {
+                  title: 'Estética y belleza',
+                  items: [
+                    'Centros de estética',
+                    'Spas',
+                    'Salones de belleza',
+                    'Barberías',
+                    'Peluquerías',
+                    'Manicure y pedicure',
+                    'Cejas y pestañas',
+                  ],
+                },
+                {
+                  title: 'Salud',
+                  items: [
+                    'Centros médicos',
+                    'Clínicas',
+                    'Fisioterapia',
+                    'Kinesiólogos',
+                    'Psicólogos',
+                    'Consultas médicas',
+                    'Medicina alternativa',
+                    'Centro de podología',
+                  ],
+                },
+                {
+                  title: 'Bienestar',
+                  items: [
+                    'Nutricionistas',
+                    'Centros deportivos',
+                    'Centros de Crossfit',
+                    'Estudios de pilates',
+                    'Estudios de yoga',
+                  ],
+                },
+              ].map((group) => (
+                <div key={group.title} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+                  <p className="text-sm font-semibold text-slate-900">{group.title}</p>
+                  <div className="mt-4 grid gap-2 text-xs text-slate-600">
+                    {group.items.map((item) => (
+                      <span key={item} className="rounded-full border border-slate-100 bg-slate-50 px-3 py-2">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="beneficios" className="relative mx-auto max-w-6xl px-6 pb-16 pt-6">
           <div className="grid gap-6 md:grid-cols-3">
             {[
@@ -155,6 +223,49 @@ export default function HomePage() {
                 <p className="mt-2 text-sm text-slate-500">{item.text}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section id="funcionalidades" className="relative mx-auto max-w-6xl px-6 pb-16">
+          <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Funcionalidades</p>
+              <h2 className="mt-3 text-3xl font-semibold text-slate-900">
+                Todo lo que tu equipo necesita para agendar y cobrar
+              </h2>
+              <p className="mt-4 text-sm text-slate-600">
+                Configura profesionales, servicios, horarios, y automatiza mensajes para no perder reservas.
+              </p>
+              <div className="mt-6 grid gap-3 text-xs text-slate-600">
+                {[
+                  'Registro de negocio y sucursales',
+                  'Creación de servicios y profesionales',
+                  'Agenda calendario con horarios disponibles',
+                  'Reservas web y por WhatsApp',
+                  'Recordatorios automáticos y mensajes personalizados',
+                  'Gestión de clientes y reportes básicos',
+                ].map((item) => (
+                  <div key={item} className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                { title: 'Agenda en línea', text: 'Disponibilidad en tiempo real y bloqueo automático de horarios.' },
+                { title: 'Bot WhatsApp', text: 'Confirmaciones, cancelaciones y reprogramaciones.' },
+                { title: 'Pagos flexibles', text: 'Cobro manual o integración con MercadoPago.' },
+                { title: 'Clientes recurrentes', text: 'Historial, notas y preferencias por cliente.' },
+                { title: 'Comisiones', text: 'Control por profesional para negocios de estética.' },
+                { title: 'Reportes', text: 'Ventas, estados y ocupación por periodo.' },
+              ].map((item) => (
+                <div key={item.title} className="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-sm">
+                  <p className="text-sm font-semibold text-slate-900">{item.title}</p>
+                  <p className="mt-1 text-xs text-slate-500">{item.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
