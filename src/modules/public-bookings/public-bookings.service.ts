@@ -205,6 +205,29 @@ export class PublicBookingsService {
     return { received: true };
   }
 
+  async getSummaryByAppointmentId(appointmentId: string) {
+    const appointment = await this.appointmentModel.findById(appointmentId);
+    if (!appointment) {
+      throw new NotFoundException('Reserva no encontrada');
+    }
+
+    const [business, service, professional, customer] = await Promise.all([
+      this.businessModel.findById(appointment.businessId),
+      this.serviceItemModel.findById(appointment.serviceId),
+      this.professionalModel.findById(appointment.professionalId),
+      this.customerModel.findById(appointment.customerId),
+    ]);
+
+    if (!business || !service || !professional || !customer) {
+      throw new NotFoundException('No se pudo construir el resumen de la reserva');
+    }
+
+    return {
+      appointment,
+      summary: this.buildSummary(appointment, business, service, professional, customer),
+    };
+  }
+
   private async upsertCustomer(dto: CreatePublicBookingDto) {
     const normalizedPhone = this.normalizePhone(dto.phone);
 

@@ -210,6 +210,11 @@ export const api = {
       payment?: { provider: string; preferenceId?: string; initPoint?: string; sandboxInitPoint?: string };
     }>('/public-bookings/reserve', { method: 'POST', body: JSON.stringify(payload) });
   },
+  getPublicBookingSummary(id: string) {
+    return request<{ appointment: Record<string, unknown>; summary: Record<string, unknown> }>(
+      `/public-bookings/summary/${id}`,
+    );
+  },
   basicReport(businessId: string, from: string, to: string) {
     return request<{ totalAppointments: number; byStatus: Array<{ _id: string; count: number }> }>(
       `/reports/basic?businessId=${businessId}&from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`,
