@@ -84,6 +84,7 @@ export default function ReservasPage() {
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [summary, setSummary] = useState<Record<string, unknown> | null>(null);
   const [message, setMessage] = useState('');
+  const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
 
   const businessQuery = useQuery({
     queryKey: ['public-business', form.businessId],
@@ -142,6 +143,32 @@ export default function ReservasPage() {
   }, [selectedProfessional, servicesQuery.data]);
 
   const weekDays = useMemo(() => weekOptionsFromToday(), []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get('payment');
+    const appointmentId = params.get('external_reference');
+    if (!payment || !appointmentId) return;
+
+    setPaymentStatus(payment);
+    api
+      .getPublicBookingSummary(appointmentId)
+      .then((result) => {
+        setSummary(result.summary as Record<string, unknown>);
+        if (payment === 'success') {
+          setMessage('Pago aprobado. Tu reserva fue confirmada.');
+        } else if (payment === 'pending') {
+          setMessage('Pago pendiente. Te avisaremos cuando se confirme.');
+        } else {
+          setMessage('Pago no aprobado. Puedes intentar nuevamente.');
+        }
+      })
+      .catch((error) => {
+        const detail = error instanceof Error ? error.message : 'Error al obtener la reserva';
+        setMessage(`No se pudo cargar el comprobante: ${detail}`);
+      });
+  }, []);
 
   useEffect(() => {
     if (!selectedProfessional) return;
@@ -457,8 +484,19 @@ export default function ReservasPage() {
         ) : null}
 
         {summary ? (
-          <Card className="space-y-2 border-emerald-200 bg-emerald-50">
-            <h3 className="text-lg font-semibold text-emerald-900">Resumen de tu reserva</h3>
+          <Card
+            className={`space-y-2 ${
+              paymentStatus === 'success' ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-white'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-emerald-900">Resumen de tu reserva</h3>
+              {paymentStatus ? (
+                <span className="rounded-full border border-emerald-200 bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                  {paymentStatus === 'success' ? 'Pago aprobado' : paymentStatus === 'pending' ? 'Pago pendiente' : 'Pago fallido'}
+                </span>
+              ) : null}
+            </div>
             <p className="text-sm text-emerald-900">Servicio: {String(summary.serviceName ?? '-')}</p>
             <p className="text-sm text-emerald-900">Profesional: {String(summary.professionalName ?? '-')}</p>
             <p className="text-sm text-emerald-900">Fecha: {String(summary.date ?? '-')}</p>

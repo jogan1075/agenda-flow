@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Param, Post, Query } from '@nestjs/common';
 import { CreatePublicBookingDto } from './dto/create-public-booking.dto';
 import { PublicBookingsService } from './public-bookings.service';
 
@@ -18,5 +18,10 @@ export class PublicBookingsController {
     @Headers() headers: Record<string, string>,
   ) {
     return this.publicBookingsService.handleMercadoPagoWebhook(businessId, payload, headers);
+  }
+
+  @Get('summary/:id')
+  getSummary(@Param('id') id: string) {
+    return this.publicBookingsService.getSummaryByAppointmentId(id);
   }
 }
