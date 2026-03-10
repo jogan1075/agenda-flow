@@ -1,7 +1,39 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
 import { MarketingLayout } from '@/components/marketing-layout';
 
 export default function PlanesPage() {
+  const [billing, setBilling] = useState<'mensual' | 'anual'>('mensual');
+  const plans = [
+    {
+      name: 'Individual',
+      mensual: { price: '$ 19.990', desc: 'Ideal para independientes que quieren ordenar su agenda.' },
+      anual: { price: '$ 17.990', desc: 'Pago anual con 2 meses gratis.' },
+      perks: ['1 agenda', 'Reservas online', 'Recordatorios automáticos'],
+    },
+    {
+      name: 'Básico',
+      mensual: { price: '$ 39.990', desc: 'Para negocios que necesitan control y administración.' },
+      anual: { price: '$ 35.990', desc: 'Ahorra pagando anual.' },
+      perks: ['5 agendas', 'Caja y comisiones', 'Inventarios básicos'],
+    },
+    {
+      name: 'Premium',
+      mensual: { price: '$ 69.990', desc: 'Más fidelización y herramientas de marketing.' },
+      anual: { price: '$ 62.990', desc: 'Mejor precio con plan anual.' },
+      perks: ['10 agendas', 'Email marketing', 'Encuestas de satisfacción'],
+      highlight: true,
+    },
+    {
+      name: 'Pro',
+      mensual: { price: '$ 119.990', desc: 'Marca propia y personalización avanzada.' },
+      anual: { price: '$ 107.990', desc: 'Incluye soporte prioritario.' },
+      perks: ['15 agendas', 'App personalizada', 'Integraciones / API'],
+    },
+  ];
+
   return (
     <MarketingLayout>
       <section className="relative mx-auto max-w-6xl px-6 pb-16">
@@ -12,39 +44,29 @@ export default function PlanesPage() {
               <h1 className="mt-2 text-3xl font-semibold text-slate-900">Compara nuestros planes</h1>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs">
-              <span className="rounded-full bg-slate-900 px-3 py-1 text-white">Mensual</span>
-              <span className="px-3 py-1 text-slate-500">Anual (2 meses gratis)</span>
+              <button
+                type="button"
+                className={`rounded-full px-3 py-1 font-semibold transition ${
+                  billing === 'mensual' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                onClick={() => setBilling('mensual')}
+              >
+                Mensual
+              </button>
+              <button
+                type="button"
+                className={`rounded-full px-3 py-1 font-semibold transition ${
+                  billing === 'anual' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:text-slate-900'
+                }`}
+                onClick={() => setBilling('anual')}
+              >
+                Anual (2 meses gratis)
+              </button>
             </div>
           </div>
 
           <div className="mt-8 grid gap-6 lg:grid-cols-4">
-            {[
-              {
-                name: 'Individual',
-                price: 'Desde $ 19.990',
-                desc: 'Ideal para independientes que quieren ordenar su agenda.',
-                perks: ['1 agenda', 'Reservas online', 'Recordatorios automáticos'],
-              },
-              {
-                name: 'Básico',
-                price: 'Desde $ 39.990',
-                desc: 'Para negocios que necesitan control y administración.',
-                perks: ['5 agendas', 'Caja y comisiones', 'Inventarios básicos'],
-              },
-              {
-                name: 'Premium',
-                price: 'Desde $ 69.990',
-                desc: 'Más fidelización y herramientas de marketing.',
-                perks: ['10 agendas', 'Email marketing', 'Encuestas de satisfacción'],
-                highlight: true,
-              },
-              {
-                name: 'Pro',
-                price: 'Desde $ 119.990',
-                desc: 'Marca propia y personalización avanzada.',
-                perks: ['15 agendas', 'App personalizada', 'Integraciones / API'],
-              },
-            ].map((plan) => (
+            {plans.map((plan) => (
               <div
                 key={plan.name}
                 className={`rounded-3xl border p-6 shadow-sm ${
@@ -52,8 +74,12 @@ export default function PlanesPage() {
                 }`}
               >
                 <p className="text-sm font-semibold text-slate-900">{plan.name}</p>
-                <p className="mt-2 text-3xl font-semibold text-slate-900">{plan.price}</p>
-                <p className="mt-2 text-sm text-slate-500">{plan.desc}</p>
+                <p className="mt-2 text-3xl font-semibold text-slate-900">
+                  {billing === 'mensual' ? plan.mensual.price : plan.anual.price}
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  {billing === 'mensual' ? plan.mensual.desc : plan.anual.desc}
+                </p>
                 <div className="mt-4 grid gap-2 text-xs text-slate-600">
                   {plan.perks.map((perk) => (
                     <span key={perk} className="rounded-full border border-slate-100 bg-white px-3 py-2">
