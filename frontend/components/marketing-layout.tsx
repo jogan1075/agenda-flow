@@ -51,7 +51,6 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
   ];
 
   const [themeId, setThemeId] = useState(themes[0].id);
-  const [paletteOpen, setPaletteOpen] = useState(false);
   const activeTheme = useMemo(() => themes.find((theme) => theme.id === themeId) ?? themes[0], [themeId]);
 
   return (
@@ -106,37 +105,21 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
               </Link>
             </nav>
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setPaletteOpen((open) => !open)}
-                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300"
-                >
-                  Paleta
-                </button>
-                {paletteOpen && (
-                  <div className="absolute right-0 mt-2 w-40 rounded-2xl border border-slate-200 bg-white p-2 text-xs shadow-lg">
-                    {themes.map((theme) => (
-                      <button
-                        key={theme.id}
-                        type="button"
-                        onClick={() => {
-                          setThemeId(theme.id);
-                          setPaletteOpen(false);
-                        }}
-                        className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left transition ${
-                          theme.id === themeId ? 'bg-slate-100 text-slate-900' : 'text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        {theme.name}
-                        <span
-                          className="h-2 w-2 rounded-full"
-                          style={{ backgroundColor: theme.colors.action }}
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
+              <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 text-[11px] font-semibold text-slate-600">
+                <span className="px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-slate-400">Paleta</span>
+                {themes.map((theme) => (
+                  <button
+                    key={theme.id}
+                    type="button"
+                    onClick={() => setThemeId(theme.id)}
+                    className={`flex items-center gap-2 rounded-full px-3 py-1 transition ${
+                      theme.id === themeId ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {theme.name}
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: theme.colors.action }} />
+                  </button>
+                ))}
               </div>
               <Link
                 href="/login"
