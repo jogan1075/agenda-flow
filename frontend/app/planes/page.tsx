@@ -6,30 +6,31 @@ import { MarketingLayout } from '@/components/marketing-layout';
 
 export default function PlanesPage() {
   const [billing, setBilling] = useState<'mensual' | 'anual'>('mensual');
+  const formatCLP = (amount: number) => `$ ${amount.toLocaleString('es-CL')}`;
   const plans = [
     {
       name: 'Individual',
-      mensual: { price: '$ 19.990', desc: 'Ideal para independientes que quieren ordenar su agenda.' },
-      anual: { price: '$ 17.990', desc: 'Pago anual con 2 meses gratis.' },
+      mensual: { amount: 19990, desc: 'Ideal para independientes que quieren ordenar su agenda.' },
+      anual: { desc: 'Pago anual equivalente a 10 meses.' },
       perks: ['1 agenda', 'Reservas online', 'Recordatorios automáticos'],
     },
     {
       name: 'Básico',
-      mensual: { price: '$ 39.990', desc: 'Para negocios que necesitan control y administración.' },
-      anual: { price: '$ 35.990', desc: 'Ahorra pagando anual.' },
+      mensual: { amount: 39990, desc: 'Para negocios que necesitan control y administración.' },
+      anual: { desc: 'Pago anual equivalente a 10 meses.' },
       perks: ['5 agendas', 'Caja y comisiones', 'Inventarios básicos'],
     },
     {
       name: 'Premium',
-      mensual: { price: '$ 69.990', desc: 'Más fidelización y herramientas de marketing.' },
-      anual: { price: '$ 62.990', desc: 'Mejor precio con plan anual.' },
+      mensual: { amount: 69990, desc: 'Más fidelización y herramientas de marketing.' },
+      anual: { desc: 'Pago anual equivalente a 10 meses.' },
       perks: ['10 agendas', 'Email marketing', 'Encuestas de satisfacción'],
       highlight: true,
     },
     {
       name: 'Pro',
-      mensual: { price: '$ 119.990', desc: 'Marca propia y personalización avanzada.' },
-      anual: { price: '$ 107.990', desc: 'Incluye soporte prioritario.' },
+      mensual: { amount: 119990, desc: 'Marca propia y personalización avanzada.' },
+      anual: { desc: 'Pago anual equivalente a 10 meses.' },
       perks: ['15 agendas', 'App personalizada', 'Integraciones / API'],
     },
   ];
@@ -60,7 +61,7 @@ export default function PlanesPage() {
                 }`}
                 onClick={() => setBilling('anual')}
               >
-                Anual (2 meses gratis)
+                Anual (paga 10 meses)
               </button>
             </div>
           </div>
@@ -75,7 +76,9 @@ export default function PlanesPage() {
               >
                 <p className="text-sm font-semibold text-slate-900">{plan.name}</p>
                 <p className="mt-2 text-3xl font-semibold text-slate-900">
-                  {billing === 'mensual' ? plan.mensual.price : plan.anual.price}
+                  {billing === 'mensual'
+                    ? formatCLP(plan.mensual.amount)
+                    : formatCLP(plan.mensual.amount * 10)}
                 </p>
                 <p className="mt-2 text-sm text-slate-500">
                   {billing === 'mensual' ? plan.mensual.desc : plan.anual.desc}
