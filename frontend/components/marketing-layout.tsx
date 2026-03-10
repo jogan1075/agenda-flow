@@ -56,8 +56,10 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={`${manrope.variable} ${playfair.variable} min-h-screen bg-[var(--af-bg)] text-[var(--af-text)]`}
+      className={`${manrope.variable} ${playfair.variable} min-h-screen`}
       style={{
+        backgroundColor: activeTheme.colors.bg,
+        color: activeTheme.colors.text,
         ['--af-primary' as string]: activeTheme.colors.primary,
         ['--af-secondary' as string]: activeTheme.colors.secondary,
         ['--af-bg' as string]: activeTheme.colors.bg,
