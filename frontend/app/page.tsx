@@ -14,17 +14,17 @@ export default function HomePage() {
   return (
     <MarketingLayout>
       <section className="relative mx-auto max-w-6xl px-6 pb-16">
-        <div className="grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
+        <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-500">
               AgendaFlow
             </span>
             <h1 className="mt-5 text-4xl font-semibold leading-tight text-slate-900 md:text-5xl lg:text-6xl">
-              Agenda y reservas con una experiencia premium para tus clientes.
+              Gestión inteligente de citas y reservas para negocios de servicios.
             </h1>
             <p className="mt-5 max-w-xl text-base text-slate-600 md:text-lg">
-              Unifica agenda, pagos, comunicaciones y reportes en un sistema pensado para negocios con altos
-              estándares de atención.
+              Centraliza agenda, pagos y comunicaciones. Reduce no-show y aumenta tus reservas con recordatorios
+              automáticos y un sitio de reservas propio.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link
@@ -54,39 +54,36 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="relative">
-            <div className="absolute -right-12 top-10 h-40 w-40 rounded-full bg-[var(--af-secondary)]/15 blur-[70px]" />
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-              <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
-                <div className="flex items-center justify-between">
-                  <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Control central</p>
-                  <span className="rounded-full bg-[var(--af-primary)]/10 px-3 py-1 text-[11px] font-semibold text-[var(--af-primary)]">
-                    Premium
-                  </span>
-                </div>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-900">Panel en vivo</h2>
-                <div className="mt-6 grid gap-3">
-                  {[
-                    { label: 'Agenda completa', value: '12 citas confirmadas' },
-                    { label: 'Pagos del día', value: '$ 185.000' },
-                    { label: 'Recordatorios', value: '8 WhatsApp enviados' },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                      <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                      <p className="mt-1 text-xs text-slate-500">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
+              <div className="flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Dashboard</p>
+                <span className="rounded-full bg-[var(--af-primary)]/10 px-3 py-1 text-[11px] font-semibold text-[var(--af-primary)]">
+                  En tiempo real
+                </span>
               </div>
-              <div className="mt-5 grid gap-3 text-xs text-slate-500">
-                <div className="flex items-center justify-between">
-                  <span>Integraciones</span>
-                  <span>WhatsApp · MercadoPago · Email</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span>Multi-sucursal</span>
-                  <span>Horarios y equipos independientes</span>
-                </div>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Resumen del día</h2>
+              <div className="mt-6 grid gap-3">
+                {[
+                  { label: 'Agenda completa', value: '12 citas confirmadas' },
+                  { label: 'Pagos del día', value: '$ 185.000' },
+                  { label: 'Recordatorios', value: '8 WhatsApp enviados' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                    <p className="text-sm font-semibold text-slate-900">{item.label}</p>
+                    <p className="mt-1 text-xs text-slate-500">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 text-xs text-slate-500">
+              <div className="flex items-center justify-between">
+                <span>Integraciones</span>
+                <span>WhatsApp · MercadoPago · Email</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Multi-sucursal</span>
+                <span>Horarios y equipos independientes</span>
               </div>
             </div>
           </div>
@@ -95,30 +92,27 @@ export default function HomePage() {
 
       <section className="relative mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Beneficios</p>
-              <h2 className="mt-3 text-2xl font-semibold text-slate-900">Todo lo que necesitas para un servicio premium</h2>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Rubros</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">AgendaFlow se adapta a tu negocio</h2>
             </div>
             <Link
-              href="/beneficios"
+              href="/negocios"
               className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300"
             >
-              Ver detalle
+              Ver todos
             </Link>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
             {[
-              { title: 'Reservas online', text: 'Clientes reservan en segundos desde cualquier dispositivo.' },
-              { title: 'Recordatorios automáticos', text: 'WhatsApp y correo para reducir inasistencias.' },
-              { title: 'Pagos integrados', text: 'Cobra con MercadoPago o transferencias.' },
-              { title: 'Ventas + comisiones', text: 'Control por profesional y reportes al día.' },
-              { title: 'Multi-sucursal', text: 'Horarios y equipos independientes por sede.' },
-              { title: 'Atención 24/7', text: 'Reservas disponibles incluso fuera de horario.' },
+              { title: 'Estética y belleza', text: 'Spas, salones, barberías, manicure y más.' },
+              { title: 'Salud', text: 'Clínicas, centros médicos, psicología, fisioterapia.' },
+              { title: 'Bienestar', text: 'Yoga, pilates, nutrición, entrenamiento.' },
             ].map((item) => (
               <div key={item.title} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
                 <p className="text-sm font-semibold text-slate-900">{item.title}</p>
-                <p className="mt-1 text-sm text-slate-500">{item.text}</p>
+                <p className="mt-2 text-sm text-slate-500">{item.text}</p>
               </div>
             ))}
           </div>
