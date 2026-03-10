@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Manrope, Playfair_Display } from 'next/font/google';
 
 const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
@@ -52,6 +52,17 @@ export function MarketingLayout({ children }: { children: React.ReactNode }) {
 
   const [themeId, setThemeId] = useState(themes[0].id);
   const activeTheme = useMemo(() => themes.find((theme) => theme.id === themeId) ?? themes[0], [themeId]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--af-primary', activeTheme.colors.primary);
+    root.style.setProperty('--af-secondary', activeTheme.colors.secondary);
+    root.style.setProperty('--af-bg', activeTheme.colors.bg);
+    root.style.setProperty('--af-text', activeTheme.colors.text);
+    root.style.setProperty('--af-action', activeTheme.colors.action);
+    root.style.setProperty('--af-primary-soft', activeTheme.colors.primarySoft);
+    root.style.setProperty('--af-secondary-soft', activeTheme.colors.secondarySoft);
+  }, [activeTheme]);
 
   return (
     <div
