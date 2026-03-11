@@ -160,10 +160,8 @@ export default function DashboardPage() {
           <Button
             variant="outline"
             onClick={() => {
-              if (businessId) {
-                window.localStorage.setItem('public_booking_business_id', businessId);
-              }
-              window.open('/reservas', '_blank');
+              if (!businessId) return;
+              window.open(`/reservas/${businessId}`, '_blank');
             }}
           >
             Ver pagina de reservas
