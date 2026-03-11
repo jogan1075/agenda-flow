@@ -38,10 +38,10 @@ export default function PlanesPage() {
   return (
     <MarketingLayout>
       <section className="relative mx-auto max-w-6xl px-6 pb-16">
-        <div className="rounded-3xl border border-white/70 bg-white/90 p-8 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Planes</p>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Planes</p>
               <h1 className="mt-2 text-3xl font-semibold text-slate-900">Compara nuestros planes</h1>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2 py-1 text-xs">
@@ -71,7 +71,7 @@ export default function PlanesPage() {
               <div
                 key={plan.name}
                 className={`rounded-3xl border p-6 shadow-sm ${
-                  plan.highlight ? 'border-emerald-200 bg-emerald-50' : 'border-white/70 bg-white'
+                  plan.highlight ? 'border-slate-300 bg-slate-50' : 'border-slate-100 bg-white'
                 }`}
               >
                 <p className="text-sm font-semibold text-slate-900">{plan.name}</p>
@@ -94,7 +94,7 @@ export default function PlanesPage() {
                   href="/login"
                   className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-4 py-2 text-sm font-semibold transition ${
                     plan.highlight
-                      ? 'bg-emerald-500 text-white hover:bg-emerald-400'
+                      ? 'bg-[var(--af-action)] text-white hover:brightness-110'
                       : 'border border-slate-200 text-slate-700 hover:border-slate-300'
                   }`}
                 >
@@ -105,7 +105,7 @@ export default function PlanesPage() {
           </div>
 
           <div className="mt-10 rounded-3xl border border-slate-100 bg-white p-6">
-            <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Comparación rápida</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Comparación rápida</p>
             <div className="mt-4 overflow-auto">
               <table className="min-w-[720px] text-left text-xs text-slate-600">
                 <thead className="text-slate-500">
@@ -140,7 +140,7 @@ export default function PlanesPage() {
           </div>
 
           <div className="mt-10">
-            <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Productos adicionales</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Productos adicionales</p>
             <div className="mt-4 grid gap-4 md:grid-cols-3">
               {[
                 { title: 'WhatsApp', text: 'Recordatorios automáticos y confirmaciones por WhatsApp.' },

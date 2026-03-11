@@ -5,8 +5,8 @@ export default function FuncionalidadesPage() {
     <MarketingLayout>
       <section className="relative mx-auto max-w-6xl px-6 pb-16">
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <div className="rounded-3xl border border-white/70 bg-white/90 p-6 shadow-sm">
-            <p className="text-xs uppercase tracking-[0.3em] text-emerald-500">Funcionalidades</p>
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Funcionalidades</p>
             <h1 className="mt-3 text-3xl font-semibold text-slate-900">
               Todo lo que tu equipo necesita para agendar y cobrar
             </h1>
@@ -22,7 +22,7 @@ export default function FuncionalidadesPage() {
                 'Recordatorios automáticos y mensajes personalizados',
                 'Gestión de clientes y reportes básicos',
               ].map((item) => (
-                <div key={item} className="rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm">
+                <div key={item} className="rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3 shadow-sm">
                   {item}
                 </div>
               ))}
