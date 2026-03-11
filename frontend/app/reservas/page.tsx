@@ -1,12 +1,13 @@
 import { redirect } from 'next/navigation';
 import { PublicReservas } from '@/components/public-reservas';
 
-export default function ReservasPage({
+export default async function ReservasPage({
   searchParams,
 }: {
-  searchParams?: { businessId?: string; business?: string };
+  searchParams?: Promise<{ businessId?: string; business?: string }>;
 }) {
-  const businessId = searchParams?.businessId ?? searchParams?.business;
+  const resolved = searchParams ? await searchParams : undefined;
+  const businessId = resolved?.businessId ?? resolved?.business;
   if (businessId) {
     redirect(`/reservas/${businessId}`);
   }
