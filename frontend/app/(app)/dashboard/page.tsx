@@ -161,7 +161,7 @@ export default function DashboardPage() {
             variant="outline"
             onClick={() => {
               if (!businessId) return;
-              window.open(`/r/${businessId}`, '_blank');
+              window.open(`/reservas/${businessId}`, '_blank');
             }}
           >
             Ver pagina de reservas
