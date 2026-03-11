@@ -46,6 +46,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (!session) router.replace('/login');
   }, [isHydrated, session, router]);
 
+  if (!isHydrated) {
+    return <div className="min-h-screen bg-[radial-gradient(circle_at_0%_0%,#dbeafe_0,#f8fafc_40%,#fafaf9_100%)]" />;
+  }
+
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_0%_0%,#dbeafe_0,#f8fafc_40%,#fafaf9_100%)]">
       <button
