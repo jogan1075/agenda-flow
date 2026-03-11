@@ -1,5 +1,10 @@
 import { PublicReservas } from '@/components/public-reservas';
 
-export default function PublicReservasPage({ params }: { params: { businessId: string } }) {
-  return <PublicReservas initialBusinessId={params.businessId} />;
+export default async function PublicReservasPage({
+  params,
+}: {
+  params: Promise<{ businessId: string }>;
+}) {
+  const { businessId } = await params;
+  return <PublicReservas initialBusinessId={businessId} />;
 }
