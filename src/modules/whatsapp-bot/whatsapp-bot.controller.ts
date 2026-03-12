@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { isValidObjectId } from 'mongoose';
 import { InboundProvider } from './whatsapp-bot.types';
 import { WhatsAppBotService } from './whatsapp-bot.service';
 
@@ -30,6 +31,7 @@ export class WhatsAppBotController {
     @Param('businessId') businessId: string,
     @Body() payload: unknown,
   ) {
+    this.assertValidBusinessId(businessId);
     const inbound = this.parseInboundMessage(provider, payload);
     if (!inbound) {
       return { ok: true, ignored: true };
@@ -49,6 +51,7 @@ export class WhatsAppBotController {
         'Missing businessId. Use /webhook/:provider/:businessId or /webhook/:provider?businessId=...',
       );
     }
+    this.assertValidBusinessId(businessId);
 
     const inbound = this.parseInboundMessage(provider, payload);
     if (!inbound) {
@@ -63,6 +66,7 @@ export class WhatsAppBotController {
     @Param('businessId') businessId: string,
     @Query('to') to: string,
   ) {
+    this.assertValidBusinessId(businessId);
     return this.whatsappBotService.sendLocationMessage(businessId, to);
   }
 
@@ -115,5 +119,11 @@ export class WhatsAppBotController {
     }
 
     return 'verification_failed';
+  }
+
+  private assertValidBusinessId(businessId: string) {
+    if (!isValidObjectId(businessId)) {
+      throw new BadRequestException('Invalid businessId format.');
+    }
   }
 }
