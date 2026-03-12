@@ -11,7 +11,7 @@ export class AiAssistantService {
     userMessage: string;
     contextSummary: string;
   }): Promise<string | null> {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     if (!apiKey) {
       return null;
     }
@@ -24,23 +24,34 @@ export class AiAssistantService {
       `Mensaje cliente: ${input.userMessage}`,
     ].join('\n');
 
-    const response = await axios.post(
-      'https://api.openai.com/v1/responses',
-      {
-        model: 'gpt-4.1-mini',
-        input: prompt,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-      },
-    );
+    const model = this.configService.get<string>('GEMINI_MODEL', 'gemini-2.5-flash');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
-    const text = response.data?.output_text;
-    if (typeof text === 'string' && text.trim().length > 0) {
-      return text.trim();
+    try {
+      const response = await axios.post(
+        url,
+        {
+          contents: [
+            {
+              parts: [{ text: prompt }],
+            },
+          ],
+        },
+        {
+          headers: {
+            'x-goog-api-key': apiKey,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        },
+      );
+
+      const text = response.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (typeof text === 'string' && text.trim().length > 0) {
+        return text.trim();
+      }
+    } catch {
+      return null;
     }
 
     return null;

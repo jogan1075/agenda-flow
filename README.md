@@ -33,7 +33,8 @@ API base: `http://localhost:3000/api`
   - `META_WHATSAPP_PHONE_NUMBER_ID`
   - `META_WEBHOOK_VERIFY_TOKEN`
 - IA en atencion automatica (opcional):
-  - `OPENAI_API_KEY`
+  - `GEMINI_API_KEY`
+  - `GEMINI_MODEL` (opcional, default `gemini-2.5-flash`)
 
 ## Super Admin (bootstrap inicial)
 Puedes crear automaticamente un super admin al iniciar la API con:
