@@ -83,7 +83,10 @@ export class WhatsAppBotController {
             messages?: Array<{
               from?: string;
               text?: { body?: string };
-              interactive?: { button_reply?: { id?: string; title?: string } };
+              interactive?: {
+                button_reply?: { id?: string; title?: string };
+                list_reply?: { id?: string; title?: string };
+              };
             }>;
           };
         }>;
