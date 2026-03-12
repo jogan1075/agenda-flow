@@ -68,8 +68,13 @@ Webhooks:
 - `POST /api/whatsapp-bot/webhook/twilio/:businessId`
 - `POST /api/whatsapp-bot/webhook/twilio?businessId=...`
 - `GET /api/whatsapp-bot/webhook/meta` (verificacion Meta)
+- `GET /api/whatsapp-bot/webhook/meta/:businessId` (verificacion Meta con negocio)
 - `POST /api/whatsapp-bot/webhook/meta/:businessId`
 - `POST /api/whatsapp-bot/webhook/meta?businessId=...`
+
+Meta Cloud API (chatbot):
+- Callback URL recomendado: `/api/whatsapp-bot/webhook/meta/:businessId`
+- Verify Token: debe coincidir con `META_WEBHOOK_VERIFY_TOKEN`
 
 Utilidad:
 - `POST /api/whatsapp-bot/send-location/:businessId?to=+569...`

@@ -12,11 +12,16 @@ export class WhatsAppBotController {
     @Query('hub.verify_token') verifyToken?: string,
     @Query('hub.challenge') challenge?: string,
   ) {
-    if (mode === 'subscribe' && verifyToken === process.env.META_WEBHOOK_VERIFY_TOKEN) {
-      return challenge ?? '';
-    }
+    return this.handleMetaVerification(mode, verifyToken, challenge);
+  }
 
-    return 'verification_failed';
+  @Get('webhook/meta/:businessId')
+  verifyMetaWebhookWithBusinessId(
+    @Query('hub.mode') mode?: string,
+    @Query('hub.verify_token') verifyToken?: string,
+    @Query('hub.challenge') challenge?: string,
+  ) {
+    return this.handleMetaVerification(mode, verifyToken, challenge);
   }
 
   @Post('webhook/:provider/:businessId')
@@ -86,13 +91,26 @@ export class WhatsAppBotController {
     };
 
     const message = root.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
+    const interactive = message?.interactive;
     const phone = message?.from;
     if (!phone) return null;
 
     return {
       phone: `+${phone}`,
-      text: message?.text?.body ?? message?.interactive?.button_reply?.title ?? '',
-      buttonId: message?.interactive?.button_reply?.id,
+      text:
+        message?.text?.body ??
+        interactive?.button_reply?.title ??
+        interactive?.list_reply?.title ??
+        '',
+      buttonId: interactive?.button_reply?.id ?? interactive?.list_reply?.id,
     };
+  }
+
+  private handleMetaVerification(mode?: string, verifyToken?: string, challenge?: string) {
+    if (mode === 'subscribe' && verifyToken === process.env.META_WEBHOOK_VERIFY_TOKEN) {
+      return challenge ?? '';
+    }
+
+    return 'verification_failed';
   }
 }
