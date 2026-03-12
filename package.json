@@ -1,6 +1,6 @@
 {
   "name": "new-project",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Backend MVP de reservas (NestJS + MongoDB)",
   "main": "dist/main.js",
   "scripts": {
