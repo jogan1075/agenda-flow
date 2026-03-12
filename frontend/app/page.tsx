@@ -39,6 +39,12 @@ export default function HomePage() {
               >
                 Ver página de reservas
               </Link>
+              <Link
+                href="/privacy"
+                className="rounded-full border border-slate-200 px-6 py-3 text-sm text-slate-700 transition hover:border-slate-300"
+              >
+                Política de privacidad
+              </Link>
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {[
