@@ -31,8 +31,10 @@ services:
         sync: false
       - key: META_WEBHOOK_VERIFY_TOKEN
         sync: false
-      - key: OPENAI_API_KEY
+      - key: GEMINI_API_KEY
         sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
       - key: SMTP_HOST
         sync: false
       - key: SMTP_PORT
