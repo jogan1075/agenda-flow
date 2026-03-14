@@ -20,29 +20,84 @@ const highlightCarousel = [...highlightTags, ...highlightTags];
 
 const businessCards = [
   {
+    label: 'Spa',
+    image: 'https://images.pexels.com/photos/5793681/pexels-photo-5793681.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Salones de belleza',
+    image: 'https://images.pexels.com/photos/8834099/pexels-photo-8834099.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Barbería',
+    image: 'https://images.pexels.com/photos/3105409/pexels-photo-3105409.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Peluquería',
+    image: 'https://images.pexels.com/photos/8834077/pexels-photo-8834077.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Manicure y pedicure',
+    image: 'https://images.pexels.com/photos/7446912/pexels-photo-7446912.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Cejas y pestañas',
+    image: 'https://images.pexels.com/photos/34930118/pexels-photo-34930118.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Salones de maquillaje',
+    image: 'https://images.pexels.com/photos/33580449/pexels-photo-33580449.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Fisioterapia / kinesiologías',
+    image: 'https://images.pexels.com/photos/30483032/pexels-photo-30483032.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Psicología',
+    image: 'https://images.pexels.com/photos/7579312/pexels-photo-7579312.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
     label: 'Nutrición',
-    image:
-      'https://images.pexels.com/photos/8844553/pexels-photo-8844553.jpeg?cs=srgb&dl=pexels-yaroslav-shuraev-8844553.jpg&fm=jpg',
+    image: 'https://images.pexels.com/photos/8844392/pexels-photo-8844392.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
   {
     label: 'Medicina alternativa',
-    image:
-      'https://images.pexels.com/photos/8312875/pexels-photo-8312875.jpeg?cs=srgb&dl=pexels-rdne-8312875.jpg&fm=jpg',
+    image: 'https://images.pexels.com/photos/8312875/pexels-photo-8312875.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
   {
-    label: 'Podología',
-    image:
-      'https://images.pexels.com/photos/17056221/pexels-photo-17056221.jpeg?cs=srgb&dl=pexels-andreamostiphotography-17056221.jpg&fm=jpg',
+    label: 'Podologías',
+    image: 'https://images.pexels.com/photos/17056221/pexels-photo-17056221.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
   {
     label: 'Clínicas',
-    image:
-      'https://images.pexels.com/photos/19675470/pexels-photo-19675470.jpeg?cs=srgb&dl=pexels-krini-kon-867186580-19675470.jpg&fm=jpg',
+    image: 'https://images.pexels.com/photos/5452254/pexels-photo-5452254.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
   {
     label: 'Centros de estética',
-    image:
-      'https://images.pexels.com/photos/7697320/pexels-photo-7697320.jpeg?cs=srgb&dl=pexels-rdne-7697320.jpg&fm=jpg',
+    image: 'https://images.pexels.com/photos/34930097/pexels-photo-34930097.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Neurodesarrollo',
+    image: 'https://images.pexels.com/photos/8653974/pexels-photo-8653974.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Inclusión social',
+    image: 'https://images.pexels.com/photos/20437178/pexels-photo-20437178.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Fonoaudiología',
+    image: 'https://images.pexels.com/photos/8654102/pexels-photo-8654102.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Terapia Ocupacional',
+    image: 'https://images.pexels.com/photos/8654039/pexels-photo-8654039.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Psicopedagogía',
+    image: 'https://images.pexels.com/photos/6503098/pexels-photo-6503098.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Refuerzo Escolar',
+    image: 'https://images.pexels.com/photos/8617744/pexels-photo-8617744.jpeg?auto=compress&cs=tinysrgb&w=1200',
   },
 ];
 
