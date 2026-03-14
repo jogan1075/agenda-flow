@@ -16,6 +16,8 @@ const highlightTags = [
   'Google Reserve',
 ];
 
+const highlightCarousel = [...highlightTags, ...highlightTags];
+
 const businessCards = [
   {
     label: 'Nutrición',
@@ -43,6 +45,8 @@ const businessCards = [
       'https://images.pexels.com/photos/7697320/pexels-photo-7697320.jpeg?cs=srgb&dl=pexels-rdne-7697320.jpg&fm=jpg',
   },
 ];
+
+const businessCarousel = [...businessCards, ...businessCards];
 
 const avatarChips = [
   'Salones de belleza',
@@ -114,6 +118,37 @@ export default function HomePage() {
 
   return (
     <MarketingLayout>
+      <style jsx global>{`
+        .af-marquee-track {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          width: max-content;
+          animation: af-marquee 26s linear infinite;
+        }
+        .af-marquee-tags {
+          justify-content: flex-start;
+        }
+        .af-marquee-cards {
+          gap: 16px;
+        }
+        @keyframes af-marquee {
+          from {
+            transform: translateX(0);
+          }
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        @media (max-width: 768px) {
+          .af-marquee-track {
+            animation-duration: 34s;
+          }
+          .af-marquee-cards > div {
+            min-width: 200px;
+          }
+        }
+      `}</style>
       <section className="relative mx-auto max-w-6xl px-6 pb-20">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
@@ -169,12 +204,17 @@ export default function HomePage() {
         <div className="rounded-[32px] bg-slate-900 px-8 py-14 text-white shadow-2xl">
           <div className="flex flex-col gap-4 text-center">
             <p className="text-lg font-semibold">AgendaFlow hace crecer tu negocio</p>
-            <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.3em] text-white/60">
-              {highlightTags.map((tag) => (
-                <span key={tag} className="rounded-full border border-white/15 px-3 py-1">
-                  {tag}
-                </span>
-              ))}
+            <div className="relative overflow-hidden">
+              <div className="af-marquee-track af-marquee-tags">
+                {highlightCarousel.map((tag, index) => (
+                  <span
+                    key={`${tag}-${index}`}
+                    className="rounded-full border border-white/15 px-3 py-1 text-xs uppercase tracking-[0.3em] text-white/60"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -192,17 +232,19 @@ export default function HomePage() {
             ))}
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-5">
-            {businessCards.map((card) => (
-              <div key={card.label} className="relative overflow-hidden rounded-2xl">
-                <img src={card.image} alt={card.label} className="h-40 w-full object-cover" />
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-sm font-semibold text-white">
-                  <span>{card.label}</span>
-                  <span>→</span>
+          <div className="mt-10 overflow-hidden">
+            <div className="af-marquee-track af-marquee-cards">
+              {businessCarousel.map((card, index) => (
+                <div key={`${card.label}-${index}`} className="relative min-w-[240px] overflow-hidden rounded-2xl">
+                  <img src={card.image} alt={card.label} className="h-40 w-full object-cover" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
+                  <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-sm font-semibold text-white">
+                    <span>{card.label}</span>
+                    <span>→</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
