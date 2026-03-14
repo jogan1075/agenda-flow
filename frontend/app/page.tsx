@@ -118,37 +118,6 @@ export default function HomePage() {
 
   return (
     <MarketingLayout>
-      <style jsx global>{`
-        .af-marquee-track {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-          width: max-content;
-          animation: af-marquee 26s linear infinite;
-        }
-        .af-marquee-tags {
-          justify-content: flex-start;
-        }
-        .af-marquee-cards {
-          gap: 16px;
-        }
-        @keyframes af-marquee {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
-        @media (max-width: 768px) {
-          .af-marquee-track {
-            animation-duration: 34s;
-          }
-          .af-marquee-cards > div {
-            min-width: 200px;
-          }
-        }
-      `}</style>
       <section className="relative mx-auto max-w-6xl px-6 pb-20">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
