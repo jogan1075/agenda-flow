@@ -17,11 +17,11 @@ const highlightTags = [
 ];
 
 const businessCards = [
-  { label: 'Nutrición', tone: 'from-emerald-500/70 via-emerald-200/40 to-slate-900/90' },
-  { label: 'Medicina alternativa', tone: 'from-orange-500/60 via-amber-200/40 to-slate-900/90' },
-  { label: 'Podología', tone: 'from-sky-500/60 via-sky-200/40 to-slate-900/90' },
-  { label: 'Clínicas', tone: 'from-indigo-500/60 via-indigo-200/40 to-slate-900/90' },
-  { label: 'Centros de estética', tone: 'from-fuchsia-500/60 via-fuchsia-200/40 to-slate-900/90' },
+  { label: 'Nutrición', image: '/images/industry-nutricion.svg' },
+  { label: 'Medicina alternativa', image: '/images/industry-alternativa.svg' },
+  { label: 'Podología', image: '/images/industry-podologia.svg' },
+  { label: 'Clínicas', image: '/images/industry-clinicas.svg' },
+  { label: 'Centros de estética', image: '/images/industry-estetica.svg' },
 ];
 
 const avatarChips = [
@@ -136,37 +136,11 @@ export default function HomePage() {
           </div>
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-5">
-              <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-[0.25em] text-slate-400">Panel de ventas</p>
-                <span className="rounded-full bg-[var(--af-primary)]/10 px-3 py-1 text-[11px] font-semibold text-[var(--af-primary)]">
-                  En tiempo real
-                </span>
-              </div>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Resumen diario</h2>
-              <div className="mt-6 grid gap-3">
-                {[
-                  { label: 'Reservas confirmadas', value: '12 citas' },
-                  { label: 'Ventas del día', value: '$ 185.000' },
-                  { label: 'Comisiones', value: '$ 62.000' },
-                ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                    <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                    <p className="mt-1 text-xs text-slate-500">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="mt-5 grid gap-3 text-xs text-slate-500">
-              <div className="flex items-center justify-between">
-                <span>Integraciones</span>
-                <span>WhatsApp · MercadoPago · Email</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Multi-sucursal</span>
-                <span>Horarios y equipos independientes</span>
-              </div>
-            </div>
+            <img
+              src="/images/hero-dashboard.svg"
+              alt="Panel de ventas AgendaFlow"
+              className="h-full w-full rounded-2xl object-cover"
+            />
           </div>
         </div>
       </section>
@@ -200,13 +174,13 @@ export default function HomePage() {
 
           <div className="mt-10 grid gap-4 lg:grid-cols-5">
             {businessCards.map((card) => (
-              <div
-                key={card.label}
-                className={`relative flex h-40 items-end rounded-2xl bg-gradient-to-br ${card.tone} p-4`}
-              >
+              <div key={card.label} className="relative overflow-hidden rounded-2xl">
+                <img src={card.image} alt={card.label} className="h-40 w-full object-cover" />
                 <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
-                <span className="relative text-sm font-semibold">{card.label}</span>
-                <span className="relative ml-auto text-lg">→</span>
+                <div className="absolute bottom-3 left-4 right-4 flex items-center justify-between text-sm font-semibold text-white">
+                  <span>{card.label}</span>
+                  <span>→</span>
+                </div>
               </div>
             ))}
           </div>
@@ -242,7 +216,11 @@ export default function HomePage() {
         <div className="rounded-[32px] bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-900 p-10 text-white">
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div className="rounded-2xl bg-white/10 p-6">
-              <div className="h-40 rounded-2xl bg-gradient-to-br from-white/20 to-transparent" />
+              <img
+                src="/images/support-chat.svg"
+                alt="Soporte AgendaFlow"
+                className="h-56 w-full rounded-2xl object-cover"
+              />
               <div className="mt-4 rounded-2xl bg-white/10 px-4 py-3 text-sm text-white/70">
                 ¿Cómo podemos ayudarte? Escribe un mensaje…
               </div>
@@ -295,10 +273,15 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {['Cobro con POS', 'Agenda inteligente', 'App móvil', 'Gestión de clientes'].map((label) => (
-              <div key={label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                <div className="h-24 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200" />
-                <p className="mt-3 text-sm font-semibold text-slate-900">{label}</p>
+            {[
+              { label: 'Cobro con POS', image: '/images/industry-estetica.svg' },
+              { label: 'Agenda inteligente', image: '/images/hero-dashboard.svg' },
+              { label: 'App móvil', image: '/images/industry-nutricion.svg' },
+              { label: 'Gestión de clientes', image: '/images/industry-clinicas.svg' },
+            ].map((item) => (
+              <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+                <img src={item.image} alt={item.label} className="h-24 w-full rounded-xl object-cover" />
+                <p className="mt-3 text-sm font-semibold text-slate-900">{item.label}</p>
               </div>
             ))}
           </div>
