@@ -19,7 +19,7 @@ body {
   gap: 12px;
   align-items: center;
   width: max-content;
-  animation: af-marquee 26s linear infinite;
+  animation: af-marquee 36s linear infinite;
 }
 
 .af-marquee-tags {
@@ -41,7 +41,7 @@ body {
 
 @media (max-width: 768px) {
   .af-marquee-track {
-    animation-duration: 34s;
+    animation-duration: 46s;
   }
   .af-marquee-cards > div {
     min-width: 200px;

@@ -103,17 +103,90 @@ const businessCards = [
 
 const businessCarousel = [...businessCards, ...businessCards];
 
-const avatarChips = [
-  'Salones de belleza',
-  'Spa',
-  'Barberías',
-  'Peluquerías',
-  'Cejas y pestañas',
-  'Fisioterapia',
-  'Psicología',
-  'Nutrición',
-  'Podología',
-  'Clínicas',
+const beautyRow = [
+  {
+    label: 'Spa',
+    image: 'https://images.pexels.com/photos/5793681/pexels-photo-5793681.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Salones de belleza',
+    image: 'https://images.pexels.com/photos/8834099/pexels-photo-8834099.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Barbería',
+    image: 'https://images.pexels.com/photos/3105409/pexels-photo-3105409.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Peluquería',
+    image: 'https://images.pexels.com/photos/8834077/pexels-photo-8834077.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Manicure y pedicure',
+    image: 'https://images.pexels.com/photos/7446912/pexels-photo-7446912.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Cejas y pestañas',
+    image: 'https://images.pexels.com/photos/34930118/pexels-photo-34930118.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Salones de maquillaje',
+    image: 'https://images.pexels.com/photos/33580449/pexels-photo-33580449.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Centros de estética',
+    image: 'https://images.pexels.com/photos/34930097/pexels-photo-34930097.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+];
+
+const wellbeingRow = [
+  {
+    label: 'Fisioterapia / kinesiologías',
+    image: 'https://images.pexels.com/photos/30483032/pexels-photo-30483032.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Psicología',
+    image: 'https://images.pexels.com/photos/7579312/pexels-photo-7579312.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Nutrición',
+    image: 'https://images.pexels.com/photos/8844392/pexels-photo-8844392.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Medicina alternativa',
+    image: 'https://images.pexels.com/photos/8312875/pexels-photo-8312875.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Podologías',
+    image: 'https://images.pexels.com/photos/17056221/pexels-photo-17056221.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Clínicas',
+    image: 'https://images.pexels.com/photos/5452254/pexels-photo-5452254.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Neurodesarrollo',
+    image: 'https://images.pexels.com/photos/8653974/pexels-photo-8653974.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Inclusión social',
+    image: 'https://images.pexels.com/photos/20437178/pexels-photo-20437178.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Fonoaudiología',
+    image: 'https://images.pexels.com/photos/8654102/pexels-photo-8654102.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Terapia Ocupacional',
+    image: 'https://images.pexels.com/photos/8654039/pexels-photo-8654039.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Psicopedagogía',
+    image: 'https://images.pexels.com/photos/6503098/pexels-photo-6503098.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
+  {
+    label: 'Refuerzo Escolar',
+    image: 'https://images.pexels.com/photos/8617744/pexels-photo-8617744.jpeg?auto=compress&cs=tinysrgb&w=1200',
+  },
 ];
 
 const supportItems = [
@@ -276,16 +349,29 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-6 pb-12">
         <div className="text-center">
           <p className="text-lg font-semibold text-slate-900">AgendaFlow se adapta a tu negocio</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-            {avatarChips.map((label, index) => (
-              <div key={label} className="flex flex-col items-center gap-2">
-                <div
-                  className="h-12 w-12 rounded-full border border-slate-200 bg-gradient-to-br from-slate-100 to-slate-200"
-                  style={{ opacity: 0.6 + (index % 5) * 0.08 }}
-                />
-                <span className="text-xs text-slate-500">{label}</span>
-              </div>
-            ))}
+          <div className="mt-6 grid gap-8">
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {beautyRow.map((item) => (
+                <div key={item.label} className="flex w-[110px] flex-col items-center gap-2">
+                  <div
+                    className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
+                    style={{ backgroundImage: `url(${item.image})` }}
+                  />
+                  <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              {wellbeingRow.map((item) => (
+                <div key={item.label} className="flex w-[110px] flex-col items-center gap-2">
+                  <div
+                    className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
+                    style={{ backgroundImage: `url(${item.image})` }}
+                  />
+                  <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
           <div className="mt-10 text-sm text-slate-400">
             <span className="font-semibold text-slate-500">Impulsado por</span>
