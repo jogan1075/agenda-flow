@@ -17,11 +17,31 @@ const highlightTags = [
 ];
 
 const businessCards = [
-  { label: 'Nutrición', image: '/images/industry-nutricion.svg' },
-  { label: 'Medicina alternativa', image: '/images/industry-alternativa.svg' },
-  { label: 'Podología', image: '/images/industry-podologia.svg' },
-  { label: 'Clínicas', image: '/images/industry-clinicas.svg' },
-  { label: 'Centros de estética', image: '/images/industry-estetica.svg' },
+  {
+    label: 'Nutrición',
+    image:
+      'https://images.pexels.com/photos/8844553/pexels-photo-8844553.jpeg?cs=srgb&dl=pexels-yaroslav-shuraev-8844553.jpg&fm=jpg',
+  },
+  {
+    label: 'Medicina alternativa',
+    image:
+      'https://images.pexels.com/photos/8312875/pexels-photo-8312875.jpeg?cs=srgb&dl=pexels-rdne-8312875.jpg&fm=jpg',
+  },
+  {
+    label: 'Podología',
+    image:
+      'https://images.pexels.com/photos/17056221/pexels-photo-17056221.jpeg?cs=srgb&dl=pexels-andreamostiphotography-17056221.jpg&fm=jpg',
+  },
+  {
+    label: 'Clínicas',
+    image:
+      'https://images.pexels.com/photos/19675470/pexels-photo-19675470.jpeg?cs=srgb&dl=pexels-krini-kon-867186580-19675470.jpg&fm=jpg',
+  },
+  {
+    label: 'Centros de estética',
+    image:
+      'https://images.pexels.com/photos/7697320/pexels-photo-7697320.jpeg?cs=srgb&dl=pexels-rdne-7697320.jpg&fm=jpg',
+  },
 ];
 
 const avatarChips = [
@@ -137,8 +157,8 @@ export default function HomePage() {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl">
             <img
-              src="/images/hero-dashboard.svg"
-              alt="Panel de ventas AgendaFlow"
+              src="https://images.pexels.com/photos/12935077/pexels-photo-12935077.jpeg?cs=srgb&dl=pexels-imin-technology-276315592-12935077.jpg&fm=jpg"
+              alt="Pago con terminal POS"
               className="h-full w-full rounded-2xl object-cover"
             />
           </div>
@@ -217,7 +237,7 @@ export default function HomePage() {
           <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div className="rounded-2xl bg-white/10 p-6">
               <img
-                src="/images/support-chat.svg"
+                src="https://images.pexels.com/photos/3183161/pexels-photo-3183161.jpeg?cs=srgb&dl=pexels-fauxels-3183161.jpg&fm=jpg"
                 alt="Soporte AgendaFlow"
                 className="h-56 w-full rounded-2xl object-cover"
               />
@@ -274,10 +294,26 @@ export default function HomePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              { label: 'Cobro con POS', image: '/images/industry-estetica.svg' },
-              { label: 'Agenda inteligente', image: '/images/hero-dashboard.svg' },
-              { label: 'App móvil', image: '/images/industry-nutricion.svg' },
-              { label: 'Gestión de clientes', image: '/images/industry-clinicas.svg' },
+              {
+                label: 'Cobro con POS',
+                image:
+                  'https://images.pexels.com/photos/9304565/pexels-photo-9304565.jpeg?cs=srgb&dl=pexels-mikhail-nilov-9304565.jpg&fm=jpg',
+              },
+              {
+                label: 'Agenda inteligente',
+                image:
+                  'https://images.pexels.com/photos/19675470/pexels-photo-19675470.jpeg?cs=srgb&dl=pexels-krini-kon-867186580-19675470.jpg&fm=jpg',
+              },
+              {
+                label: 'App móvil',
+                image:
+                  'https://images.pexels.com/photos/3183161/pexels-photo-3183161.jpeg?cs=srgb&dl=pexels-fauxels-3183161.jpg&fm=jpg',
+              },
+              {
+                label: 'Gestión de clientes',
+                image:
+                  'https://images.pexels.com/photos/8844553/pexels-photo-8844553.jpeg?cs=srgb&dl=pexels-yaroslav-shuraev-8844553.jpg&fm=jpg',
+              },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
                 <img src={item.image} alt={item.label} className="h-24 w-full rounded-xl object-cover" />
