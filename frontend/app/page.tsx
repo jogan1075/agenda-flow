@@ -189,6 +189,9 @@ const wellbeingRow = [
   },
 ];
 
+const beautyRowCarousel = [...beautyRow, ...beautyRow];
+const wellbeingRowCarousel = [...wellbeingRow, ...wellbeingRow];
+
 const supportItems = [
   'Academia online',
   'Equipo de soporte 24/7',
@@ -350,27 +353,31 @@ export default function HomePage() {
         <div className="text-center">
           <p className="text-lg font-semibold text-slate-900">AgendaFlow se adapta a tu negocio</p>
           <div className="mt-6 grid gap-8">
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              {beautyRow.map((item) => (
-                <div key={item.label} className="flex w-[110px] flex-col items-center gap-2">
-                  <div
-                    className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
-                    style={{ backgroundImage: `url(${item.image})` }}
-                  />
-                  <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
-                </div>
-              ))}
+            <div className="relative overflow-hidden">
+              <div className="af-marquee-track af-marquee-tags">
+                {beautyRowCarousel.map((item, index) => (
+                  <div key={`${item.label}-${index}`} className="flex w-[110px] flex-col items-center gap-2">
+                    <div
+                      className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
+                      style={{ backgroundImage: `url(${item.image})` }}
+                    />
+                    <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              {wellbeingRow.map((item) => (
-                <div key={item.label} className="flex w-[110px] flex-col items-center gap-2">
-                  <div
-                    className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
-                    style={{ backgroundImage: `url(${item.image})` }}
-                  />
-                  <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
-                </div>
-              ))}
+            <div className="relative overflow-hidden">
+              <div className="af-marquee-track af-marquee-tags">
+                {wellbeingRowCarousel.map((item, index) => (
+                  <div key={`${item.label}-${index}`} className="flex w-[110px] flex-col items-center gap-2">
+                    <div
+                      className="h-14 w-14 rounded-full border border-slate-200 bg-cover bg-center shadow-sm"
+                      style={{ backgroundImage: `url(${item.image})` }}
+                    />
+                    <span className="text-center text-[11px] font-medium text-slate-500">{item.label}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div className="mt-10 text-sm text-slate-400">
