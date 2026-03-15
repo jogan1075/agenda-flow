@@ -56,6 +56,28 @@ const featureBlocks = [
   },
 ];
 
+const highlightStats = [
+  { value: '+20.000', label: 'Negocios' },
+  { value: '+135.000', label: 'Profesionales' },
+  { value: '150M', label: 'Citas agendadas' },
+  { value: '+20', label: 'Países' },
+];
+
+const valueColumns = [
+  {
+    title: 'Capta',
+    items: ['Agenda online', 'Reservas 24/7', 'Sitio web propio', 'WhatsApp integrado', 'Google Reserve'],
+  },
+  {
+    title: 'Gestiona',
+    items: ['Control de horarios', 'Pagos y comisiones', 'Reportes de gestión', 'Cierres de caja', 'Multi-sucursal'],
+  },
+  {
+    title: 'Crece',
+    items: ['Marketing y campañas', 'Fidelización', 'Gift cards', 'Promociones', 'Encuestas'],
+  },
+];
+
 export function generateStaticParams() {
   return BUSINESS_ITEMS.map((item) => ({
     slug: item.slug,
@@ -88,47 +110,107 @@ export default async function BusinessSoftwarePage({ params }: PageProps) {
 
   return (
     <MarketingLayout>
+      <section className="bg-[linear-gradient(135deg,#f5f3ff,rgba(255,255,255,0.7))]">
+        <div className="mx-auto max-w-6xl px-6 pb-16 pt-8">
+          <div className="mb-6 flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-slate-400">
+            <Link href="/" className="transition hover:text-slate-600">
+              AgendaFlow
+            </Link>
+            <span>/</span>
+            <Link href="/negocios" className="transition hover:text-slate-600">
+              Negocios
+            </Link>
+            <span>/</span>
+            <span className="text-slate-500">{business.name}</span>
+          </div>
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Software especializado</p>
+              <h1 className="mt-3 text-4xl font-semibold text-slate-900 md:text-5xl">
+                Software para {business.name.toLowerCase()}
+              </h1>
+              <p className="mt-4 max-w-xl text-sm text-slate-600 md:text-base">
+                AgendaFlow reúne reservas, pagos, recordatorios y clientes en una plataforma moderna. Optimiza la
+                ocupación de tu equipo y ofrece una experiencia premium desde el primer clic.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  href="/login"
+                  className="rounded-full bg-[var(--af-action)] px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
+                >
+                  Probar gratis
+                </Link>
+                <Link
+                  href="/reservas"
+                  className="rounded-full border border-slate-200 bg-white px-6 py-3 text-sm text-slate-700 transition hover:border-slate-300"
+                >
+                  Ver demo de reservas
+                </Link>
+              </div>
+              <div className="mt-8 grid gap-4 sm:grid-cols-4">
+                {highlightStats.map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-white/60 bg-white/80 p-4 shadow-sm">
+                    <p className="text-xl font-semibold text-slate-900">{item.value}</p>
+                    <p className="text-[11px] uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="rounded-[32px] border border-white/60 bg-white/80 p-5 shadow-2xl">
+              <img src={business.heroImage} alt={business.name} className="h-full w-full rounded-2xl object-cover" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto max-w-6xl px-6 pb-16 pt-4">
-        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-slate-400">AgendaFlow</p>
-            <h1 className="mt-3 text-4xl font-semibold text-slate-900 md:text-5xl">
-              Software para {business.name.toLowerCase()}
-            </h1>
-            <p className="mt-4 max-w-xl text-sm text-slate-600 md:text-base">
-              Gestiona citas, pagos y recordatorios en un solo lugar. Mejora la experiencia de tus clientes y aumenta
-              tu ocupación con automatizaciones inteligentes.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/login"
-                className="rounded-full bg-[var(--af-action)] px-6 py-3 text-sm font-semibold text-white transition hover:brightness-110"
-              >
-                Probar gratis
-              </Link>
-              <Link
-                href="/reservas"
-                className="rounded-full border border-slate-200 px-6 py-3 text-sm text-slate-700 transition hover:border-slate-300"
-              >
-                Ver demo de reservas
-              </Link>
+        <div className="grid gap-8 lg:grid-cols-3">
+          {valueColumns.map((column) => (
+            <div key={column.title} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+              <p className="text-xs uppercase tracking-[0.3em] text-slate-400">{column.title}</p>
+              <h2 className="mt-3 text-xl font-semibold text-slate-900">
+                Todo lo que tu {business.name.toLowerCase()} necesita
+              </h2>
+              <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                {column.items.map((item) => (
+                  <li key={item} className="flex items-center gap-3">
+                    <span className="h-2 w-2 rounded-full bg-[var(--af-action)]" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              {[
-                { value: '+35%', label: 'Más ocupación' },
-                { value: '3x', label: 'Menos no-show' },
-                { value: '24/7', label: 'Reservas online' },
-              ].map((item) => (
-                <div key={item.label} className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-                  <p className="text-2xl font-semibold text-slate-900">{item.value}</p>
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.label}</p>
-                </div>
-              ))}
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-6 pb-16">
+        <div className="space-y-10">
+          {featureBlocks.map((block, index) => (
+            <div
+              key={block.title}
+              className={`grid gap-8 rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm lg:grid-cols-[1fr_1fr] lg:items-center ${
+                index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
+              }`}
+            >
+              <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
+                <p className="text-xs uppercase tracking-[0.3em] text-slate-400">Funcionalidad</p>
+                <h3 className="mt-3 text-2xl font-semibold text-slate-900">{block.title}</h3>
+                <p className="mt-3 text-sm text-slate-600">{block.description}</p>
+                <ul className="mt-5 space-y-2 text-sm text-slate-600">
+                  {block.bullets.map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-slate-200" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
+                <img src={block.image} alt={block.title} className="h-64 w-full rounded-2xl object-cover" />
+              </div>
             </div>
-          </div>
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-xl">
-            <img src={business.heroImage} alt={business.name} className="h-full w-full rounded-2xl object-cover" />
-          </div>
+          ))}
         </div>
       </section>
 
@@ -155,29 +237,11 @@ export default async function BusinessSoftwarePage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 pb-16">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {featureBlocks.map((block) => (
-            <div key={block.title} className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-              <img src={block.image} alt={block.title} className="h-40 w-full rounded-2xl object-cover" />
-              <h3 className="mt-4 text-lg font-semibold text-slate-900">{block.title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{block.description}</p>
-              <ul className="mt-4 space-y-2 text-sm text-slate-500">
-                {block.bullets.map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <span className="h-2 w-2 rounded-full bg-slate-200" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </section>
-
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <div className="rounded-[32px] border border-slate-200 bg-white p-10 text-center shadow-lg">
-          <h2 className="text-2xl font-semibold text-slate-900">Listo para digitalizar tu {business.name.toLowerCase()}?</h2>
+          <h2 className="text-2xl font-semibold text-slate-900">
+            Listo para digitalizar tu {business.name.toLowerCase()}?
+          </h2>
           <p className="mt-3 text-sm text-slate-600">
             AgendaFlow centraliza reservas, pagos y comunicación para que tu equipo se concentre en tus clientes.
           </p>
