@@ -1,5 +1,9 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
+import { BUSINESS_CATEGORIES, FEATURE_SECTIONS, getBusinessLink } from '@/lib/marketing-data';
+
+const businessMenu = BUSINESS_CATEGORIES;
+const featureMenu = FEATURE_SECTIONS;
 
 type MarketingLayoutProps = {
   children: ReactNode;
@@ -32,17 +36,64 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
             </div>
           </div>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-            <Link href="/negocios" className="transition hover:text-slate-900">
-              Negocios
-            </Link>
-            <Link href="/beneficios" className="transition hover:text-slate-900">
-              Beneficios
-            </Link>
+            <div className="group relative">
+              <Link href="/negocios" className="-mx-2 -my-2 flex items-center gap-1 rounded-lg px-2 py-2 transition hover:text-slate-900">
+                Negocios
+                <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <div className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-[760px] translate-y-2 rounded-3xl border border-slate-200 bg-white p-6 opacity-0 shadow-xl transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="grid gap-6 md:grid-cols-3">
+                  {businessMenu.map((section) => (
+                    <div key={section.title}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
+                      <div className="mt-4 space-y-3 text-sm text-slate-700">
+                        {section.items.map((item) => (
+                          <Link
+                            key={item.slug}
+                            href={getBusinessLink(item.slug)}
+                            className="flex items-center gap-2 transition hover:text-slate-900"
+                          >
+                            <span className="h-2 w-2 rounded-full bg-slate-200" />
+                            {item.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="group relative">
+              <Link href="/funcionalidades" className="-mx-2 -my-2 flex items-center gap-1 rounded-lg px-2 py-2 transition hover:text-slate-900">
+                Funcionalidades
+                <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <div className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-[820px] -translate-x-1/2 translate-y-2 rounded-3xl border border-slate-200 bg-white p-6 opacity-0 shadow-xl transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
+                <div className="grid gap-6 md:grid-cols-3">
+                  {featureMenu.map((section) => (
+                    <div key={section.title}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
+                      <div className="mt-4 space-y-3 text-sm text-slate-700">
+                        {section.items.map((item) => (
+                          <Link key={item} href="/funcionalidades" className="flex items-center gap-2 transition hover:text-slate-900">
+                            <span className="h-2 w-2 rounded-full bg-slate-200" />
+                            {item}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <Link href="/planes" className="transition hover:text-slate-900">
-              Planes
-            </Link>
-            <Link href="/faq" className="transition hover:text-slate-900">
-              FAQ
+              Precios
             </Link>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
