@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, ChartBar, LogOut, Menu, MessageSquare, Scissors, UserSquare2, Users, X } from 'lucide-react';
+import { Calendar, CalendarDays, ChartBar, LogOut, Menu, MessageSquare, Scissors, UserSquare2, Users, X } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { clearSession, getSession } from '@/lib/session';
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 const nav = [
   { href: '/dashboard', label: 'Dashboard', icon: ChartBar },
   { href: '/agenda', label: 'Agenda', icon: Calendar },
+  { href: '/calendario', label: 'Calendario', icon: CalendarDays },
   { href: '/clientes', label: 'Clientes', icon: Users },
   { href: '/servicios', label: 'Servicios', icon: Scissors },
   { href: '/profesionales', label: 'Profesionales', icon: UserSquare2 },
