@@ -28,6 +28,17 @@ const businessSections = [
     ],
   },
   {
+    title: 'Salud y educación',
+    items: [
+      'Neurodesarrollo',
+      'Inclusión social',
+      'Fonoaudiología',
+      'Terapia Ocupacional',
+      'Psicopedagogía',
+      'Refuerzo Escolar',
+    ],
+  },
+  {
     title: 'Bienestar',
     items: ['Nutricionistas', 'Centros deportivos', 'Centros de Crossfit', 'Estudios de pilates', 'Estudios de yoga'],
   },

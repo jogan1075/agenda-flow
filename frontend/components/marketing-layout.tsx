@@ -28,6 +28,17 @@ const businessMenu = [
     ],
   },
   {
+    title: 'Salud y educación',
+    items: [
+      'Neurodesarrollo',
+      'Inclusión social',
+      'Fonoaudiología',
+      'Terapia Ocupacional',
+      'Psicopedagogía',
+      'Refuerzo Escolar',
+    ],
+  },
+  {
     title: 'Bienestar',
     items: [
       'Nutricionistas',
