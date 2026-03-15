@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MarketingLayout } from '@/components/marketing-layout';
-import { BUSINESS_CATEGORIES, FEATURE_SECTIONS, getBusinessLink } from '@/lib/marketing-data';
 
 const highlightTags = [
   'Marketplace',
@@ -243,8 +242,6 @@ const toolColumns = [
   },
 ];
 
-const businessSections = BUSINESS_CATEGORIES;
-const featureSections = FEATURE_SECTIONS;
 
 export default function HomePage() {
   const appMode = process.env.NEXT_PUBLIC_APP_MODE;
@@ -397,62 +394,6 @@ export default function HomePage() {
               <span>KAYYAI Ventures</span>
               <span>Riverwood Capital</span>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-6xl px-6 pb-16">
-        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-lg">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Negocios</h2>
-            <Link href="/negocios" className="text-xs font-semibold text-[var(--af-primary)]">
-              Ver todos
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            {businessSections.map((section) => (
-              <div key={section.title}>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
-                  {section.items.map((item) => (
-                    <Link
-                      key={item.slug}
-                      href={getBusinessLink(item.slug)}
-                      className="flex items-center gap-2 transition hover:text-slate-900"
-                    >
-                      <span className="h-2 w-2 rounded-full bg-slate-200" />
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-6xl px-6 pb-16">
-        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-lg">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-slate-900">Funcionalidades</h2>
-            <Link href="/funcionalidades" className="text-xs font-semibold text-[var(--af-primary)]">
-              Ver todo
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            {featureSections.map((section) => (
-              <div key={section.title}>
-                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
-                  {section.items.map((item) => (
-                    <Link key={item} href="/funcionalidades" className="flex items-center gap-2 transition hover:text-slate-900">
-                      <span className="h-2 w-2 rounded-full bg-slate-200" />
-                      {item}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

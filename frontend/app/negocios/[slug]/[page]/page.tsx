@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { MarketingLayout } from '@/components/marketing-layout';
 import { BUSINESS_ITEMS, getBusinessBySlug, getBusinessLink } from '@/lib/marketing-data';
 
@@ -74,10 +74,14 @@ export function generateMetadata({ params }: PageProps) {
 
 export default function BusinessSoftwarePage({ params }: PageProps) {
   const business = getBusinessBySlug(params.slug);
-  const expected = `software-para-${params.slug}`;
+  const expected = business ? `software-para-${business.slug}` : `software-para-${params.slug}`;
 
-  if (!business || params.page !== expected) {
+  if (!business) {
     notFound();
+  }
+
+  if (params.page !== expected) {
+    redirect(getBusinessLink(business.slug));
   }
 
   return (

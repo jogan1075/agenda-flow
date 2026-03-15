@@ -194,6 +194,13 @@ export const FEATURE_SECTIONS = [
 
 export const BUSINESS_ITEMS = BUSINESS_CATEGORIES.flatMap((category) => category.items);
 
-export const getBusinessBySlug = (slug: string) => BUSINESS_ITEMS.find((item) => item.slug === slug);
+const SLUG_ALIASES: Record<string, string> = {
+  'centro-de-estetica': 'centros-de-estetica',
+};
+
+export const getBusinessBySlug = (slug: string) => {
+  const normalized = SLUG_ALIASES[slug] ?? slug;
+  return BUSINESS_ITEMS.find((item) => item.slug === normalized);
+};
 
 export const getBusinessLink = (slug: string) => `/negocios/${slug}/software-para-${slug}`;
