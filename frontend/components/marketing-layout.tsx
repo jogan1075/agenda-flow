@@ -1,6 +1,82 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
 
+const businessMenu = [
+  {
+    title: 'Estética y Belleza',
+    items: [
+      'Centros de estética',
+      'Spas',
+      'Salones de belleza',
+      'Barberías',
+      'Peluquerías',
+      'Manicure y pedicure',
+      'Cejas y pestañas',
+    ],
+  },
+  {
+    title: 'Salud',
+    items: [
+      'Centros médicos',
+      'Clínicas',
+      'Fisioterapia',
+      'Kinesiólogos',
+      'Psicólogos',
+      'Consultas médicas',
+      'Medicina alternativa',
+      'Centro de Podología',
+    ],
+  },
+  {
+    title: 'Bienestar',
+    items: [
+      'Nutricionistas',
+      'Centros deportivos',
+      'Centros de Crossfit',
+      'Estudios de pilates',
+      'Estudios de yoga',
+    ],
+  },
+];
+
+const featureMenu = [
+  {
+    title: 'Capta',
+    items: [
+      'Agenda online',
+      'Reservas online',
+      'Recordatorios automáticos',
+      'Ficha clínica',
+      'Agenda médica',
+      'Historia clínica',
+    ],
+  },
+  {
+    title: 'Gestiona',
+    items: [
+      'Pago online',
+      'Control de inventarios',
+      'Integraciones API',
+      'Reportes de gestión',
+      'Reporte de comisiones',
+      'Sistema de caja',
+      'Facturación electrónica',
+      'Máquina POS',
+      'Boleta de honorarios',
+    ],
+  },
+  {
+    title: 'Crece',
+    items: [
+      'Email marketing',
+      'Encuestas de satisfacción',
+      'Fidelización de clientes',
+      'Gift cards',
+      'Charly',
+    ],
+  },
+];
+
 type MarketingLayoutProps = {
   children: ReactNode;
   className?: string;
@@ -32,17 +108,60 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
             </div>
           </div>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
-            <Link href="/negocios" className="transition hover:text-slate-900">
-              Negocios
-            </Link>
-            <Link href="/beneficios" className="transition hover:text-slate-900">
-              Beneficios
-            </Link>
+            <div className="group relative">
+              <Link href="/#negocios" className="flex items-center gap-1 transition hover:text-slate-900">
+                Negocios
+                <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <div className="pointer-events-none absolute left-0 top-full z-30 hidden w-[760px] translate-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl group-hover:pointer-events-auto group-hover:block">
+                <div className="grid gap-6 md:grid-cols-3">
+                  {businessMenu.map((section) => (
+                    <div key={section.title}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
+                      <div className="mt-4 space-y-3 text-sm text-slate-700">
+                        {section.items.map((item) => (
+                          <Link key={item} href="/#negocios" className="flex items-center gap-2 transition hover:text-slate-900">
+                            <span className="h-2 w-2 rounded-full bg-slate-200" />
+                            {item}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="group relative">
+              <Link href="/#funcionalidades" className="flex items-center gap-1 transition hover:text-slate-900">
+                Funcionalidades
+                <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
+                  <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <div className="pointer-events-none absolute left-1/2 top-full z-30 hidden w-[820px] -translate-x-1/2 translate-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl group-hover:pointer-events-auto group-hover:block">
+                <div className="grid gap-6 md:grid-cols-3">
+                  {featureMenu.map((section) => (
+                    <div key={section.title}>
+                      <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
+                      <div className="mt-4 space-y-3 text-sm text-slate-700">
+                        {section.items.map((item) => (
+                          <Link key={item} href="/#funcionalidades" className="flex items-center gap-2 transition hover:text-slate-900">
+                            <span className="h-2 w-2 rounded-full bg-slate-200" />
+                            {item}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <Link href="/planes" className="transition hover:text-slate-900">
-              Planes
-            </Link>
-            <Link href="/faq" className="transition hover:text-slate-900">
-              FAQ
+              Precios
             </Link>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
