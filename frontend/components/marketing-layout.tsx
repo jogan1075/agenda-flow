@@ -1,92 +1,9 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
+import { BUSINESS_CATEGORIES, FEATURE_SECTIONS, getBusinessLink } from '@/lib/marketing-data';
 
-const businessMenu = [
-  {
-    title: 'Estética y Belleza',
-    items: [
-      'Centros de estética',
-      'Spas',
-      'Salones de belleza',
-      'Barberías',
-      'Peluquerías',
-      'Manicure y pedicure',
-      'Cejas y pestañas',
-    ],
-  },
-  {
-    title: 'Salud',
-    items: [
-      'Centros médicos',
-      'Clínicas',
-      'Fisioterapia',
-      'Kinesiólogos',
-      'Psicólogos',
-      'Consultas médicas',
-      'Medicina alternativa',
-      'Centro de Podología',
-    ],
-  },
-  {
-    title: 'Salud y educación',
-    items: [
-      'Neurodesarrollo',
-      'Inclusión social',
-      'Fonoaudiología',
-      'Terapia Ocupacional',
-      'Psicopedagogía',
-      'Refuerzo Escolar',
-    ],
-  },
-  {
-    title: 'Bienestar',
-    items: [
-      'Nutricionistas',
-      'Centros deportivos',
-      'Centros de Crossfit',
-      'Estudios de pilates',
-      'Estudios de yoga',
-    ],
-  },
-];
-
-const featureMenu = [
-  {
-    title: 'Capta',
-    items: [
-      'Agenda online',
-      'Reservas online',
-      'Recordatorios automáticos',
-      'Ficha clínica',
-      'Agenda médica',
-      'Historia clínica',
-    ],
-  },
-  {
-    title: 'Gestiona',
-    items: [
-      'Pago online',
-      'Control de inventarios',
-      'Integraciones API',
-      'Reportes de gestión',
-      'Reporte de comisiones',
-      'Sistema de caja',
-      'Facturación electrónica',
-      'Máquina POS',
-      'Boleta de honorarios',
-    ],
-  },
-  {
-    title: 'Crece',
-    items: [
-      'Email marketing',
-      'Encuestas de satisfacción',
-      'Fidelización de clientes',
-      'Gift cards',
-      'Charly',
-    ],
-  },
-];
+const businessMenu = BUSINESS_CATEGORIES;
+const featureMenu = FEATURE_SECTIONS;
 
 type MarketingLayoutProps = {
   children: ReactNode;
@@ -120,22 +37,26 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
           </div>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
             <div className="group relative">
-              <Link href="/negocios" className="flex items-center gap-1 transition hover:text-slate-900">
+              <Link href="/negocios" className="-mx-2 -my-2 flex items-center gap-1 rounded-lg px-2 py-2 transition hover:text-slate-900">
                 Negocios
                 <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <div className="pointer-events-none absolute left-0 top-full z-30 hidden w-[760px] translate-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl group-hover:pointer-events-auto group-hover:block">
+              <div className="pointer-events-none absolute left-0 top-full z-30 mt-2 w-[760px] translate-y-2 rounded-3xl border border-slate-200 bg-white p-6 opacity-0 shadow-xl transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
                 <div className="grid gap-6 md:grid-cols-3">
                   {businessMenu.map((section) => (
                     <div key={section.title}>
                       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
                       <div className="mt-4 space-y-3 text-sm text-slate-700">
                         {section.items.map((item) => (
-                          <Link key={item} href="/negocios" className="flex items-center gap-2 transition hover:text-slate-900">
+                          <Link
+                            key={item.slug}
+                            href={getBusinessLink(item.slug)}
+                            className="flex items-center gap-2 transition hover:text-slate-900"
+                          >
                             <span className="h-2 w-2 rounded-full bg-slate-200" />
-                            {item}
+                            {item.name}
                           </Link>
                         ))}
                       </div>
@@ -146,13 +67,13 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
             </div>
 
             <div className="group relative">
-              <Link href="/funcionalidades" className="flex items-center gap-1 transition hover:text-slate-900">
+              <Link href="/funcionalidades" className="-mx-2 -my-2 flex items-center gap-1 rounded-lg px-2 py-2 transition hover:text-slate-900">
                 Funcionalidades
                 <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </Link>
-              <div className="pointer-events-none absolute left-1/2 top-full z-30 hidden w-[820px] -translate-x-1/2 translate-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl group-hover:pointer-events-auto group-hover:block">
+              <div className="pointer-events-none absolute left-1/2 top-full z-30 mt-2 w-[820px] -translate-x-1/2 translate-y-2 rounded-3xl border border-slate-200 bg-white p-6 opacity-0 shadow-xl transition group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
                 <div className="grid gap-6 md:grid-cols-3">
                   {featureMenu.map((section) => (
                     <div key={section.title}>

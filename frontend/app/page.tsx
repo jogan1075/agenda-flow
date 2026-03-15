@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MarketingLayout } from '@/components/marketing-layout';
+import { BUSINESS_CATEGORIES, FEATURE_SECTIONS, getBusinessLink } from '@/lib/marketing-data';
 
 const highlightTags = [
   'Marketplace',
@@ -242,80 +243,8 @@ const toolColumns = [
   },
 ];
 
-const businessSections = [
-  {
-    title: 'Estética y Belleza',
-    items: [
-      'Centros de estética',
-      'Spas',
-      'Salones de belleza',
-      'Barberías',
-      'Peluquerías',
-      'Manicure y pedicure',
-      'Cejas y pestañas',
-    ],
-  },
-  {
-    title: 'Salud',
-    items: [
-      'Centros médicos',
-      'Clínicas',
-      'Fisioterapia',
-      'Kinesiólogos',
-      'Psicólogos',
-      'Consultas médicas',
-      'Medicina alternativa',
-      'Centro de Podología',
-    ],
-  },
-  {
-    title: 'Salud y educación',
-    items: [
-      'Neurodesarrollo',
-      'Inclusión social',
-      'Fonoaudiología',
-      'Terapia Ocupacional',
-      'Psicopedagogía',
-      'Refuerzo Escolar',
-    ],
-  },
-  {
-    title: 'Bienestar',
-    items: ['Nutricionistas', 'Centros deportivos', 'Centros de Crossfit', 'Estudios de pilates', 'Estudios de yoga'],
-  },
-];
-
-const featureSections = [
-  {
-    title: 'Capta',
-    items: [
-      'Agenda online',
-      'Reservas online',
-      'Recordatorios automáticos',
-      'Ficha clínica',
-      'Agenda médica',
-      'Historia clínica',
-    ],
-  },
-  {
-    title: 'Gestiona',
-    items: [
-      'Pago online',
-      'Control de inventarios',
-      'Integraciones API',
-      'Reportes de gestión',
-      'Reporte de comisiones',
-      'Sistema de caja',
-      'Facturación electrónica',
-      'Máquina POS',
-      'Boleta de honorarios',
-    ],
-  },
-  {
-    title: 'Crece',
-    items: ['Email marketing', 'Encuestas de satisfacción', 'Fidelización de clientes', 'Gift cards', 'Charly'],
-  },
-];
+const businessSections = BUSINESS_CATEGORIES;
+const featureSections = FEATURE_SECTIONS;
 
 export default function HomePage() {
   const appMode = process.env.NEXT_PUBLIC_APP_MODE;
@@ -486,9 +415,13 @@ export default function HomePage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
                 <div className="mt-4 space-y-3 text-sm text-slate-700">
                   {section.items.map((item) => (
-                    <Link key={item} href="/negocios" className="flex items-center gap-2 transition hover:text-slate-900">
+                    <Link
+                      key={item.slug}
+                      href={getBusinessLink(item.slug)}
+                      className="flex items-center gap-2 transition hover:text-slate-900"
+                    >
                       <span className="h-2 w-2 rounded-full bg-slate-200" />
-                      {item}
+                      {item.name}
                     </Link>
                   ))}
                 </div>
