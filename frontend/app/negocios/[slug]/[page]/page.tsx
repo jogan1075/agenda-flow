@@ -4,7 +4,7 @@ import { MarketingLayout } from '@/components/marketing-layout';
 import { BUSINESS_ITEMS, getBusinessBySlug, getBusinessLink } from '@/lib/marketing-data';
 
 type PageProps = {
-  params: { slug: string; page: string };
+  params: Promise<{ slug: string; page: string }>;
 };
 
 const sectionImages = {
@@ -63,8 +63,9 @@ export function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }: PageProps) {
-  const business = getBusinessBySlug(params.slug);
+export async function generateMetadata({ params }: PageProps) {
+  const { slug } = await params;
+  const business = getBusinessBySlug(slug);
   if (!business) return {};
   return {
     title: `Software para ${business.name} | AgendaFlow`,
@@ -72,15 +73,16 @@ export function generateMetadata({ params }: PageProps) {
   };
 }
 
-export default function BusinessSoftwarePage({ params }: PageProps) {
-  const business = getBusinessBySlug(params.slug);
-  const expected = business ? `software-para-${business.slug}` : `software-para-${params.slug}`;
+export default async function BusinessSoftwarePage({ params }: PageProps) {
+  const { slug, page } = await params;
+  const business = getBusinessBySlug(slug);
+  const expected = business ? `software-para-${business.slug}` : `software-para-${slug}`;
 
   if (!business) {
     notFound();
   }
 
-  if (params.page !== expected) {
+  if (page !== expected) {
     redirect(getBusinessLink(business.slug));
   }
 
