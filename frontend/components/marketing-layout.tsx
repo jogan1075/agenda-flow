@@ -109,7 +109,7 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
           </div>
           <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
             <div className="group relative">
-              <Link href="/#negocios" className="flex items-center gap-1 transition hover:text-slate-900">
+              <Link href="/negocios" className="flex items-center gap-1 transition hover:text-slate-900">
                 Negocios
                 <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -122,7 +122,7 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
                       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
                       <div className="mt-4 space-y-3 text-sm text-slate-700">
                         {section.items.map((item) => (
-                          <Link key={item} href="/#negocios" className="flex items-center gap-2 transition hover:text-slate-900">
+                          <Link key={item} href="/negocios" className="flex items-center gap-2 transition hover:text-slate-900">
                             <span className="h-2 w-2 rounded-full bg-slate-200" />
                             {item}
                           </Link>
@@ -135,7 +135,7 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
             </div>
 
             <div className="group relative">
-              <Link href="/#funcionalidades" className="flex items-center gap-1 transition hover:text-slate-900">
+              <Link href="/funcionalidades" className="flex items-center gap-1 transition hover:text-slate-900">
                 Funcionalidades
                 <svg className="h-3 w-3 text-slate-400" viewBox="0 0 16 16" fill="none">
                   <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -148,7 +148,7 @@ export function MarketingLayout({ children, className }: MarketingLayoutProps) {
                       <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">{section.title}</p>
                       <div className="mt-4 space-y-3 text-sm text-slate-700">
                         {section.items.map((item) => (
-                          <Link key={item} href="/#funcionalidades" className="flex items-center gap-2 transition hover:text-slate-900">
+                          <Link key={item} href="/funcionalidades" className="flex items-center gap-2 transition hover:text-slate-900">
                             <span className="h-2 w-2 rounded-full bg-slate-200" />
                             {item}
                           </Link>

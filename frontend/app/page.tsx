@@ -461,7 +461,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="negocios" className="relative mx-auto max-w-6xl px-6 pb-16">
+      <section className="relative mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900">Negocios</h2>
@@ -487,7 +487,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="funcionalidades" className="relative mx-auto max-w-6xl px-6 pb-16">
+      <section className="relative mx-auto max-w-6xl px-6 pb-16">
         <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold text-slate-900">Funcionalidades</h2>
