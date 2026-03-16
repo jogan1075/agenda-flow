@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
 import { api } from '@/lib/api';
-import { getSession } from '@/lib/session';
+import { getSession, setSession } from '@/lib/session';
 
 type BillingPlan = 'trial' | 'monthly' | 'semiannual' | 'annual';
 type BillingStatus = 'trialing' | 'active' | 'past_due' | 'cancelled';
@@ -23,6 +23,8 @@ export default function SuperAdminPage() {
   const session = getSession();
   const token = session?.token ?? '';
   const role = session?.role ?? 'staff';
+  const [activeBusinessId, setActiveBusinessId] = useState(session?.businessId ?? '');
+  const [selectedBusinessId, setSelectedBusinessId] = useState(session?.businessId ?? '');
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -157,6 +159,10 @@ export default function SuperAdminPage() {
 
   const catalogItems = useMemo(() => catalogQuery.data ?? [], [catalogQuery.data]);
   const businesses = useMemo(() => businessesQuery.data ?? [], [businessesQuery.data]);
+  const businessNameById = useMemo(
+    () => new Map(businesses.map((business) => [String(business._id ?? ''), String(business.name ?? '-')])),
+    [businesses],
+  );
 
   if (!canAccess) {
     return (
@@ -426,6 +432,54 @@ export default function SuperAdminPage() {
             </tbody>
           </table>
         </div>
+      </Card>
+
+      <Card className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h3>
+        <p className="text-sm text-zinc-600">
+          Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
+        </p>
+        <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">
+          <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
+            <option value="">Selecciona un negocio</option>
+            {businesses.map((business) => (
+              <option key={String(business._id)} value={String(business._id)}>
+                {String(business.name ?? business.email ?? business._id)}
+              </option>
+            ))}
+          </Select>
+          <Button
+            disabled={!selectedBusinessId}
+            onClick={() => {
+              if (!session) return;
+              setSession({ ...session, businessId: selectedBusinessId });
+              setActiveBusinessId(selectedBusinessId);
+              setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
+              window.location.href = '/dashboard';
+            }}
+          >
+            Activar contexto
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (!session) return;
+              setSession({ ...session, businessId: '' });
+              setActiveBusinessId('');
+              setSelectedBusinessId('');
+              setMessage('Contexto multinegocio limpiado.');
+            }}
+          >
+            Limpiar contexto
+          </Button>
+        </div>
+        {activeBusinessId ? (
+          <p className="text-xs text-zinc-500">
+            Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+          </p>
+        ) : (
+          <p className="text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
+        )}
       </Card>
 
       {message ? <p className="rounded-lg bg-zinc-100 p-2 text-xs text-zinc-700">{message}</p> : null}
