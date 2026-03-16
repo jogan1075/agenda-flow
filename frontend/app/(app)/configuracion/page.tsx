@@ -75,7 +75,9 @@ export default function ConfiguracionPage() {
   const queryClient = useQueryClient();
   const session = getSession();
   const role = session?.role ?? 'staff';
-  const canManage = role === 'owner' || role === 'admin';
+  const token = session?.token ?? '';
+  const isSuperAdmin = role === 'super_admin';
+  const canManage = role === 'owner' || role === 'admin' || isSuperAdmin;
 
   const businessQuery = useQuery({
     queryKey: ['business', businessId],
@@ -86,6 +88,12 @@ export default function ConfiguracionPage() {
   const catalogQuery = useQuery({
     queryKey: ['business-type-catalog'],
     queryFn: () => api.getBusinessTypeCatalog(),
+  });
+
+  const superAdminBusinessesQuery = useQuery({
+    queryKey: ['superadmin-businesses'],
+    queryFn: () => api.listBusinessesForSuperAdmin(token),
+    enabled: isSuperAdmin && !!token,
   });
 
   const updateMutation = useMutation({
@@ -122,6 +130,8 @@ export default function ConfiguracionPage() {
 
   const [message, setMessage] = useState('');
   const [errorDialogMessage, setErrorDialogMessage] = useState('');
+  const [activeBusinessId, setActiveBusinessId] = useState(session?.businessId ?? '');
+  const [selectedBusinessId, setSelectedBusinessId] = useState(session?.businessId ?? '');
   const [form, setForm] = useState<ConfigFormValues>({
     name: '',
     businessEmail: '',
@@ -208,6 +218,11 @@ export default function ConfiguracionPage() {
   }, [catalogQuery.data, form.businessCategory]);
 
   const categories = useMemo(() => Object.keys(catalogQuery.data ?? {}), [catalogQuery.data]);
+  const superAdminBusinesses = useMemo(() => superAdminBusinessesQuery.data ?? [], [superAdminBusinessesQuery.data]);
+  const businessNameById = useMemo(
+    () => new Map(superAdminBusinesses.map((business) => [String(business._id ?? ''), String(business.name ?? '-')])),
+    [superAdminBusinesses],
+  );
 
   if (!canManage) {
     return (
@@ -220,7 +235,7 @@ export default function ConfiguracionPage() {
     );
   }
 
-  if (!businessId) {
+  if (!businessId && !isSuperAdmin) {
     return (
       <div className="space-y-6">
         <SectionHeader title="Crear Negocio" subtitle="Primero crea tu negocio para comenzar a usar el manager" />
@@ -291,9 +306,115 @@ export default function ConfiguracionPage() {
     );
   }
 
+  if (!businessId && isSuperAdmin) {
+    return (
+      <div className="space-y-6">
+        <SectionHeader title="Configuracion" subtitle="Modo multinegocio para SuperAdmin" />
+        <Card className="space-y-3">
+          <h3 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h3>
+          <p className="text-sm text-zinc-600">
+            Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
+          </p>
+          <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">
+            <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
+              <option value="">Selecciona un negocio</option>
+              {superAdminBusinesses.map((business) => (
+                <option key={String(business._id)} value={String(business._id)}>
+                  {String(business.name ?? business.email ?? business._id)}
+                </option>
+              ))}
+            </Select>
+            <Button
+              disabled={!selectedBusinessId}
+              onClick={() => {
+                if (!session) return;
+                setSession({ ...session, businessId: selectedBusinessId });
+                setActiveBusinessId(selectedBusinessId);
+                setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
+                window.location.href = '/dashboard';
+              }}
+            >
+              Activar contexto
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!session) return;
+                setSession({ ...session, businessId: '' });
+                setActiveBusinessId('');
+                setSelectedBusinessId('');
+                setMessage('Contexto multinegocio limpiado.');
+              }}
+            >
+              Limpiar contexto
+            </Button>
+          </div>
+          {activeBusinessId ? (
+            <p className="text-xs text-zinc-500">
+              Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+            </p>
+          ) : (
+            <p className="text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
+          )}
+          {message ? <p className="rounded-lg bg-zinc-100 p-2 text-xs text-zinc-700">{message}</p> : null}
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <SectionHeader title="Configuracion" subtitle="Negocio, sucursales, horarios y WhatsApp" />
+
+      {isSuperAdmin ? (
+        <Card className="space-y-3">
+          <h3 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h3>
+          <p className="text-sm text-zinc-600">
+            Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
+          </p>
+          <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">
+            <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
+              <option value="">Selecciona un negocio</option>
+              {superAdminBusinesses.map((business) => (
+                <option key={String(business._id)} value={String(business._id)}>
+                  {String(business.name ?? business.email ?? business._id)}
+                </option>
+              ))}
+            </Select>
+            <Button
+              disabled={!selectedBusinessId}
+              onClick={() => {
+                if (!session) return;
+                setSession({ ...session, businessId: selectedBusinessId });
+                setActiveBusinessId(selectedBusinessId);
+                setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
+                window.location.href = '/dashboard';
+              }}
+            >
+              Activar contexto
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (!session) return;
+                setSession({ ...session, businessId: '' });
+                setActiveBusinessId('');
+                setSelectedBusinessId('');
+                setMessage('Contexto multinegocio limpiado.');
+              }}
+            >
+              Limpiar contexto
+            </Button>
+          </div>
+          {activeBusinessId ? (
+            <p className="text-xs text-zinc-500">
+              Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+            </p>
+          ) : (
+            <p className="text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
+          )}
+        </Card>
+      ) : null}
 
       <Card className="space-y-3">
         <h3 className="text-sm font-semibold text-zinc-700">Datos del negocio</h3>
