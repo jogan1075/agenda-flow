@@ -33,6 +33,14 @@ export default function SuperAdminPage() {
   const [categoryKey, setCategoryKey] = useState('');
   const [subcategoryDrafts, setSubcategoryDrafts] = useState<Record<string, string>>({});
 
+  const [businessName, setBusinessName] = useState('');
+  const [businessEmail, setBusinessEmail] = useState('');
+  const [businessPhone, setBusinessPhone] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [businessOwnerEmail, setBusinessOwnerEmail] = useState('');
+  const [businessCategory, setBusinessCategory] = useState('');
+  const [businessSubcategory, setBusinessSubcategory] = useState('');
+
   const [businessDrafts, setBusinessDrafts] = useState<
     Record<string, { billingPlan: BillingPlan; billingStatus: BillingStatus; isEnabled: boolean }>
   >({});
@@ -155,8 +163,51 @@ export default function SuperAdminPage() {
     },
   });
 
+  const createBusinessMutation = useMutation({
+    mutationFn: () =>
+      api.createBusiness({
+        ownerEmail: businessOwnerEmail.trim() || undefined,
+        name: businessName.trim(),
+        email: businessEmail.trim() || undefined,
+        phone: businessPhone.trim() || undefined,
+        address: businessAddress.trim() || undefined,
+        businessCategory: businessCategory || undefined,
+        businessSubcategory: businessSubcategory || undefined,
+      }),
+    onSuccess: async () => {
+      setMessage('Negocio creado correctamente.');
+      setBusinessName('');
+      setBusinessEmail('');
+      setBusinessPhone('');
+      setBusinessAddress('');
+      setBusinessOwnerEmail('');
+      setBusinessCategory('');
+      setBusinessSubcategory('');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo crear el negocio: ${detail}`);
+    },
+  });
+
   const catalogItems = useMemo(() => catalogQuery.data ?? [], [catalogQuery.data]);
   const businesses = useMemo(() => businessesQuery.data ?? [], [businessesQuery.data]);
+  const businessCategoryOptions = useMemo(
+    () =>
+      catalogItems.map((item) => ({
+        key: String(item.key ?? ''),
+        label: String(item.label ?? item.key ?? ''),
+        subcategories: Array.isArray(item.subcategories)
+          ? (item.subcategories as Array<unknown>).map((value) => String(value))
+          : [],
+      })),
+    [catalogItems],
+  );
+  const selectedCategory = useMemo(
+    () => businessCategoryOptions.find((item) => item.key === businessCategory),
+    [businessCategoryOptions, businessCategory],
+  );
 
   if (!canAccess) {
     return (
@@ -202,6 +253,74 @@ export default function SuperAdminPage() {
           }}
         >
           Crear cuenta owner
+        </Button>
+      </Card>
+
+      <Card className="space-y-3">
+        <h3 className="text-sm font-semibold text-zinc-700">Crear negocio</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          <Input
+            placeholder="Nombre del negocio"
+            value={businessName}
+            onChange={(event) => setBusinessName(event.target.value)}
+          />
+          <Input
+            placeholder="Email del negocio"
+            value={businessEmail}
+            onChange={(event) => setBusinessEmail(event.target.value)}
+          />
+          <Input
+            placeholder="Telefono"
+            value={businessPhone}
+            onChange={(event) => setBusinessPhone(event.target.value)}
+          />
+          <Input
+            placeholder="Direccion"
+            value={businessAddress}
+            onChange={(event) => setBusinessAddress(event.target.value)}
+          />
+          <Input
+            placeholder="Email del owner (opcional)"
+            value={businessOwnerEmail}
+            onChange={(event) => setBusinessOwnerEmail(event.target.value)}
+          />
+          <Select
+            value={businessCategory}
+            onChange={(event) => {
+              setBusinessCategory(event.target.value);
+              setBusinessSubcategory('');
+            }}
+          >
+            <option value="">Selecciona categoria</option>
+            {businessCategoryOptions.map((item) => (
+              <option key={item.key} value={item.key}>
+                {item.label}
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={businessSubcategory}
+            onChange={(event) => setBusinessSubcategory(event.target.value)}
+          >
+            <option value="">Selecciona subcategoria</option>
+            {(selectedCategory?.subcategories ?? []).map((item) => (
+              <option key={item} value={item}>
+                {item}
+              </option>
+            ))}
+          </Select>
+        </div>
+        <Button
+          disabled={createBusinessMutation.isPending}
+          onClick={() => {
+            if (!businessName.trim()) {
+              setMessage('Ingresa nombre del negocio.');
+              return;
+            }
+            createBusinessMutation.mutate();
+          }}
+        >
+          Crear negocio
         </Button>
       </Card>
 
