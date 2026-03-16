@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { SectionHeader } from '@/components/section-header';
 import { api } from '@/lib/api';
-import { getSession } from '@/lib/session';
+import { getSession, setSession } from '@/lib/session';
 
 type BillingPlan = 'trial' | 'monthly' | 'semiannual' | 'annual';
 type BillingStatus = 'trialing' | 'active' | 'past_due' | 'cancelled';
@@ -23,10 +23,9 @@ export default function SuperAdminPage() {
   const session = getSession();
   const token = session?.token ?? '';
   const role = session?.role ?? 'staff';
-  const [activeMenu, setActiveMenu] = useState<'access' | 'catalog' | 'subscriptions' | 'config'>('access');
-
-  const [ownerFullName, setOwnerFullName] = useState('');
-  const [ownerEmail, setOwnerEmail] = useState('');
+  const [activeMenu, setActiveMenu] = useState<'access' | 'catalog' | 'subscriptions'>('access');
+  const [activeBusinessId, setActiveBusinessId] = useState(session?.businessId ?? '');
+  const [selectedBusinessId, setSelectedBusinessId] = useState(session?.businessId ?? '');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [message, setMessage] = useState('');
 
@@ -145,8 +144,8 @@ export default function SuperAdminPage() {
   const createAccessAndBusinessMutation = useMutation({
     mutationFn: async () => {
       const ownerPayload = {
-        fullName: ownerFullName.trim(),
-        email: ownerEmail.trim().toLowerCase(),
+        fullName: businessName.trim(),
+        email: businessEmail.trim().toLowerCase(),
         password: ownerPassword,
       };
 
@@ -174,8 +173,6 @@ export default function SuperAdminPage() {
     },
     onSuccess: async () => {
       setMessage('Accesos y negocio creados correctamente.');
-      setOwnerFullName('');
-      setOwnerEmail('');
       setOwnerPassword('');
       setBusinessName('');
       setBusinessEmail('');
@@ -194,6 +191,10 @@ export default function SuperAdminPage() {
 
   const catalogItems = useMemo(() => catalogQuery.data ?? [], [catalogQuery.data]);
   const businesses = useMemo(() => businessesQuery.data ?? [], [businessesQuery.data]);
+  const businessNameById = useMemo(
+    () => new Map(businesses.map((business) => [String(business._id ?? ''), String(business.name ?? '-')])),
+    [businesses],
+  );
   const businessCategoryOptions = useMemo(
     () =>
       catalogItems.map((item) => ({
@@ -238,7 +239,6 @@ export default function SuperAdminPage() {
             { key: 'access', label: 'Accesos y negocios' },
             { key: 'catalog', label: 'Catalogo' },
             { key: 'subscriptions', label: 'Suscripciones' },
-            { key: 'config', label: 'Configuracion' },
           ].map((item) => (
             <button
               key={item.key}
@@ -258,31 +258,6 @@ export default function SuperAdminPage() {
         <Card className="space-y-3">
           <h3 className="text-sm font-semibold text-zinc-700">Crear accesos + negocio</h3>
           <p className="text-xs text-zinc-500">Al crear un negocio se crea automaticamente el acceso del owner.</p>
-          <div className="grid gap-3 md:grid-cols-3">
-            <Input
-              placeholder="Nombre completo owner"
-              value={ownerFullName}
-              onChange={(event) => setOwnerFullName(event.target.value)}
-            />
-            <Input
-              placeholder="Email owner"
-              type="email"
-              value={ownerEmail}
-              onChange={(event) => {
-                const next = event.target.value;
-                setOwnerEmail(next);
-                if (!businessOwnerEmail) {
-                  setBusinessOwnerEmail(next);
-                }
-              }}
-            />
-            <Input
-              placeholder="Contrasena inicial (min 6)"
-              type="password"
-              value={ownerPassword}
-              onChange={(event) => setOwnerPassword(event.target.value)}
-            />
-          </div>
           <div className="grid gap-3 md:grid-cols-2">
             <Input
               placeholder="Nombre del negocio"
@@ -292,7 +267,13 @@ export default function SuperAdminPage() {
             <Input
               placeholder="Email del negocio"
               value={businessEmail}
-              onChange={(event) => setBusinessEmail(event.target.value)}
+              onChange={(event) => {
+                const next = event.target.value;
+                setBusinessEmail(next);
+                if (!businessOwnerEmail) {
+                  setBusinessOwnerEmail(next);
+                }
+              }}
             />
             <Input placeholder="Telefono" value={businessPhone} onChange={(event) => setBusinessPhone(event.target.value)} />
             <Input
@@ -327,16 +308,22 @@ export default function SuperAdminPage() {
                 </option>
               ))}
             </Select>
+            <Input
+              placeholder="Contrasena inicial (min 6)"
+              type="password"
+              value={ownerPassword}
+              onChange={(event) => setOwnerPassword(event.target.value)}
+            />
           </div>
           <Button
             disabled={createAccessAndBusinessMutation.isPending}
             onClick={() => {
-              if (!ownerFullName.trim() || !ownerEmail.trim() || ownerPassword.length < 6) {
-                setMessage('Completa nombre, email y contrasena de al menos 6 caracteres.');
-                return;
-              }
               if (!businessName.trim()) {
                 setMessage('Ingresa nombre del negocio.');
+                return;
+              }
+              if (!businessEmail.trim() || ownerPassword.length < 6) {
+                setMessage('Completa email del negocio y contrasena de al menos 6 caracteres.');
                 return;
               }
               createAccessAndBusinessMutation.mutate();
@@ -344,6 +331,73 @@ export default function SuperAdminPage() {
           >
             Crear accesos y negocio
           </Button>
+          <div className="mt-4 rounded-xl border border-zinc-100 p-4">
+            <h4 className="text-sm font-semibold text-zinc-700">Configuracion del negocio</h4>
+            <p className="text-xs text-zinc-500">
+              Accede a los submenus de configuracion para gestionar sucursales, horarios, pagos, WhatsApp y multinegocio.
+            </p>
+            <div className="mt-3 grid gap-2 md:grid-cols-3">
+              {[
+                { label: 'General', section: 'general' },
+                { label: 'Sucursales', section: 'sucursales' },
+                { label: 'Horarios', section: 'horarios' },
+                { label: 'Pagos', section: 'pagos' },
+                { label: 'WhatsApp', section: 'whatsapp' },
+                { label: 'Multinegocio', section: 'multinegocio' },
+              ].map((item) => (
+                <Button key={item.section} variant="outline" onClick={() => router.push('/configuracion')}>
+                  {item.label}
+                </Button>
+              ))}
+            </div>
+            <div className="mt-4 rounded-xl border border-zinc-100 p-4">
+              <h4 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h4>
+              <p className="text-xs text-zinc-500">
+                Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
+              </p>
+              <div className="mt-3 grid gap-3 md:grid-cols-[1fr_220px_220px]">
+                <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
+                  <option value="">Selecciona un negocio</option>
+                  {businesses.map((business) => (
+                    <option key={String(business._id)} value={String(business._id)}>
+                      {String(business.name ?? business.email ?? business._id)}
+                    </option>
+                  ))}
+                </Select>
+                <Button
+                  disabled={!selectedBusinessId}
+                  onClick={() => {
+                    if (!session) return;
+                    setSession({ ...session, businessId: selectedBusinessId });
+                    setActiveBusinessId(selectedBusinessId);
+                    setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
+                    window.location.href = '/dashboard';
+                  }}
+                >
+                  Activar contexto
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (!session) return;
+                    setSession({ ...session, businessId: '' });
+                    setActiveBusinessId('');
+                    setSelectedBusinessId('');
+                    setMessage('Contexto multinegocio limpiado.');
+                  }}
+                >
+                  Limpiar contexto
+                </Button>
+              </div>
+              {activeBusinessId ? (
+                <p className="mt-2 text-xs text-zinc-500">
+                  Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+                </p>
+              ) : (
+                <p className="mt-2 text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
+              )}
+            </div>
+          </div>
         </Card>
       ) : null}
 
@@ -573,29 +627,6 @@ export default function SuperAdminPage() {
                 })}
               </tbody>
             </table>
-          </div>
-        </Card>
-      ) : null}
-
-      {activeMenu === 'config' ? (
-        <Card className="space-y-3">
-          <h3 className="text-sm font-semibold text-zinc-700">Configuracion del negocio</h3>
-          <p className="text-xs text-zinc-500">
-            Accede a los submenus de configuracion para gestionar sucursales, horarios, pagos, WhatsApp y multinegocio.
-          </p>
-          <div className="grid gap-2 md:grid-cols-3">
-            {[
-              { label: 'General', section: 'general' },
-              { label: 'Sucursales', section: 'sucursales' },
-              { label: 'Horarios', section: 'horarios' },
-              { label: 'Pagos', section: 'pagos' },
-              { label: 'WhatsApp', section: 'whatsapp' },
-              { label: 'Multinegocio', section: 'multinegocio' },
-            ].map((item) => (
-              <Button key={item.section} variant="outline" onClick={() => router.push('/configuracion')}>
-                {item.label}
-              </Button>
-            ))}
           </div>
         </Card>
       ) : null}
