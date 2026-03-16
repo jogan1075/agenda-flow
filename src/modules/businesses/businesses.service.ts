@@ -152,6 +152,18 @@ export class BusinessesService implements OnModuleInit {
     return updated;
   }
 
+  async deleteBySuperAdmin(id: string) {
+    const business = await this.businessModel.findById(id);
+    if (!business) {
+      throw new NotFoundException('Business not found');
+    }
+
+    await this.userModel.updateMany({ businessId: business.id }, { $set: { businessId: null } });
+    await this.businessModel.deleteOne({ _id: business.id });
+
+    return { ok: true };
+  }
+
   async getBusinessTypeCatalog() {
     await this.ensureCatalogSeed();
 

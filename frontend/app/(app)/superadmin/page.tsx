@@ -44,6 +44,19 @@ export default function SuperAdminPage() {
   const [businessDrafts, setBusinessDrafts] = useState<
     Record<string, { billingPlan: BillingPlan; billingStatus: BillingStatus; isEnabled: boolean }>
   >({});
+  const [businessInfoDrafts, setBusinessInfoDrafts] = useState<
+    Record<
+      string,
+      {
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        businessCategory?: string;
+        businessSubcategory?: string;
+      }
+    >
+  >({});
 
   const canAccess = role === 'super_admin';
 
@@ -75,6 +88,23 @@ export default function SuperAdminPage() {
           billingPlan: String(business.billingPlan ?? 'trial') as BillingPlan,
           billingStatus: String(business.billingStatus ?? 'trialing') as BillingStatus,
           isEnabled: business.isEnabled !== false,
+        };
+      }
+      return next;
+    });
+
+    setBusinessInfoDrafts((prev) => {
+      const next = { ...prev };
+      for (const business of businesses) {
+        const id = String(business._id ?? '');
+        if (!id || next[id]) continue;
+        next[id] = {
+          name: String(business.name ?? ''),
+          email: String(business.email ?? ''),
+          phone: business.phone ? String(business.phone) : '',
+          address: business.address ? String(business.address) : '',
+          businessCategory: business.businessCategory ? String(business.businessCategory) : '',
+          businessSubcategory: business.businessSubcategory ? String(business.businessSubcategory) : '',
         };
       }
       return next;
@@ -138,6 +168,30 @@ export default function SuperAdminPage() {
     onError: (error) => {
       const detail = error instanceof Error ? error.message : 'Error desconocido';
       setMessage(`No se pudo actualizar negocio: ${detail}`);
+    },
+  });
+
+  const updateBusinessInfoMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Record<string, unknown> }) => api.updateBusiness(id, payload),
+    onSuccess: async () => {
+      setMessage('Negocio actualizado correctamente.');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo actualizar negocio: ${detail}`);
+    },
+  });
+
+  const deleteBusinessMutation = useMutation({
+    mutationFn: (id: string) => api.deleteBusinessBySuperAdmin(id, token),
+    onSuccess: async () => {
+      setMessage('Negocio eliminado correctamente.');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo eliminar negocio: ${detail}`);
     },
   });
 
@@ -332,6 +386,145 @@ export default function SuperAdminPage() {
           >
             Crear accesos y negocio
           </Button>
+
+          <div className="mt-6 space-y-3">
+            <h4 className="text-sm font-semibold text-zinc-700">Negocios creados</h4>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="text-left text-zinc-500">
+                  <tr>
+                    <th className="py-2">Nombre</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th>Categoria</th>
+                    <th>Subcategoria</th>
+                    <th>Accion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {businesses.map((business) => {
+                    const id = String(business._id ?? '');
+                    const draft = businessInfoDrafts[id];
+                    const categoryOptions = businessCategoryOptions;
+                    const subOptions =
+                      categoryOptions.find((item) => item.key === (draft?.businessCategory ?? ''))?.subcategories ?? [];
+
+                    if (!draft) return null;
+
+                    return (
+                      <tr key={id} className="border-t border-zinc-100 align-top">
+                        <td className="py-2">
+                          <Input
+                            value={draft.name}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, name: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Input
+                            value={draft.email}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, email: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Input
+                            value={draft.phone ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, phone: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Select
+                            value={draft.businessCategory ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: {
+                                  ...draft,
+                                  businessCategory: event.target.value,
+                                  businessSubcategory: '',
+                                },
+                              }))
+                            }
+                          >
+                            <option value="">Categoria</option>
+                            {categoryOptions.map((item) => (
+                              <option key={item.key} value={item.key}>
+                                {item.label}
+                              </option>
+                            ))}
+                          </Select>
+                        </td>
+                        <td>
+                          <Select
+                            value={draft.businessSubcategory ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, businessSubcategory: event.target.value },
+                              }))
+                            }
+                          >
+                            <option value="">Subcategoria</option>
+                            {subOptions.map((item) => (
+                              <option key={item} value={item}>
+                                {item}
+                              </option>
+                            ))}
+                          </Select>
+                        </td>
+                        <td className="space-y-2">
+                          <Button
+                            variant="outline"
+                            disabled={updateBusinessInfoMutation.isPending}
+                            onClick={() =>
+                              updateBusinessInfoMutation.mutate({
+                                id,
+                                payload: {
+                                  name: draft.name.trim(),
+                                  email: draft.email.trim(),
+                                  phone: draft.phone?.trim() || undefined,
+                                  address: draft.address?.trim() || undefined,
+                                  businessCategory: draft.businessCategory || undefined,
+                                  businessSubcategory: draft.businessSubcategory || undefined,
+                                },
+                              })
+                            }
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            disabled={deleteBusinessMutation.isPending}
+                            onClick={() => {
+                              if (!confirm(`Eliminar negocio \"${draft.name}\"?`)) return;
+                              deleteBusinessMutation.mutate(id);
+                            }}
+                          >
+                            Eliminar
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </Card>
       ) : null}
 
