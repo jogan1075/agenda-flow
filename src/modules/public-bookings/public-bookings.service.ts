@@ -29,6 +29,141 @@ export class PublicBookingsService {
     private readonly mercadoPagoService: MercadoPagoService,
   ) {}
 
+  async listBusinesses() {
+    return this.businessModel
+      .find({ isEnabled: true })
+      .select({
+        name: 1,
+        email: 1,
+        phone: 1,
+        address: 1,
+        businessCategory: 1,
+        businessSubcategory: 1,
+        branches: 1,
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+
+  async listBranches(businessId: string) {
+    const business = await this.businessModel.findById(businessId).select({ branches: 1, isEnabled: 1 }).lean();
+    if (!business) {
+      throw new NotFoundException('Negocio no encontrado');
+    }
+    if (business.isEnabled === false) {
+      throw new BadRequestException('Este negocio esta temporalmente deshabilitado');
+    }
+    return business.branches ?? [];
+  }
+
+  async listServicesByBusiness(businessId: string) {
+    const business = await this.businessModel.findById(businessId).select({ isEnabled: 1 }).lean();
+    if (!business) {
+      throw new NotFoundException('Negocio no encontrado');
+    }
+    if (business.isEnabled === false) {
+      throw new BadRequestException('Este negocio esta temporalmente deshabilitado');
+    }
+    return this.serviceItemModel.find({ businessId, isActive: true }).sort({ name: 1 }).lean();
+  }
+
+  async listProfessionalsByBusiness(businessId: string, serviceId?: string) {
+    const business = await this.businessModel.findById(businessId).select({ isEnabled: 1 }).lean();
+    if (!business) {
+      throw new NotFoundException('Negocio no encontrado');
+    }
+    if (business.isEnabled === false) {
+      throw new BadRequestException('Este negocio esta temporalmente deshabilitado');
+    }
+
+    const query: Record<string, unknown> = { businessId, isActive: true };
+    if (serviceId) {
+      query.serviceIds = serviceId;
+    }
+
+    return this.professionalModel.find(query).sort({ fullName: 1 }).lean();
+  }
+
+  async getAvailability(input: {
+    businessId: string;
+    professionalId: string;
+    serviceId: string;
+    limit?: number;
+  }) {
+    const { businessId, professionalId, serviceId } = input;
+    const limit = input.limit && input.limit > 0 ? Math.min(input.limit, 50) : 10;
+
+    const [business, service, professional] = await Promise.all([
+      this.businessModel.findById(businessId),
+      this.serviceItemModel.findOne({ _id: serviceId, businessId, isActive: true }),
+      this.professionalModel.findOne({ _id: professionalId, businessId, isActive: true }),
+    ]);
+
+    if (!business) throw new NotFoundException('Negocio no encontrado');
+    if (business.isEnabled === false) {
+      throw new BadRequestException('Este negocio esta temporalmente deshabilitado');
+    }
+    if (!service) throw new NotFoundException('Servicio no encontrado');
+    if (!professional) throw new NotFoundException('Profesional no encontrado');
+    if (!(professional.serviceIds ?? []).map((item) => String(item)).includes(serviceId)) {
+      throw new BadRequestException('El profesional no esta asociado al servicio seleccionado');
+    }
+
+    const durationMs = service.durationMinutes * 60 * 1000;
+    const now = new Date();
+    const startCursor = new Date(now.getTime() + 30 * 60 * 1000);
+    const slots: Array<{ startsAt: string; endsAt: string }> = [];
+    const openingHours = business.openingHours ?? [];
+    const dayKeys: Array<'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'> = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+
+    for (let dayOffset = 0; dayOffset < 7 && slots.length < limit; dayOffset += 1) {
+      const dayBase = new Date(startCursor);
+      dayBase.setDate(dayBase.getDate() + dayOffset);
+      dayBase.setHours(0, 0, 0, 0);
+
+      const dayKey = dayKeys[dayBase.getDay()];
+      const dayConfig = openingHours.find((item) => item.day === dayKey);
+      if (!dayConfig || dayConfig.isOpen === false) {
+        continue;
+      }
+
+      const { opensAt, closesAt } = this.normalizeHours(dayConfig.opensAt, dayConfig.closesAt);
+      if (!opensAt || !closesAt) continue;
+
+      let cursor = new Date(dayBase);
+      cursor.setHours(opensAt.hours, opensAt.minutes, 0, 0);
+      const closeAt = new Date(dayBase);
+      closeAt.setHours(closesAt.hours, closesAt.minutes, 0, 0);
+
+      while (cursor.getTime() + durationMs <= closeAt.getTime() && slots.length < limit) {
+        if (cursor >= startCursor) {
+          const slotEnd = new Date(cursor.getTime() + durationMs);
+          const overlap = await this.appointmentModel.findOne({
+            businessId,
+            professionalId,
+            status: { $nin: ['cancelled'] },
+            startsAt: { $lt: slotEnd },
+            endsAt: { $gt: cursor },
+          });
+          if (!overlap) {
+            slots.push({ startsAt: cursor.toISOString(), endsAt: slotEnd.toISOString() });
+          }
+        }
+        cursor = new Date(cursor.getTime() + durationMs);
+      }
+    }
+
+    return slots;
+  }
+
   async reserve(dto: CreatePublicBookingDto) {
     const startsAt = new Date(dto.startsAt);
     const endsAt = new Date(dto.endsAt);
@@ -140,6 +275,22 @@ export class PublicBookingsService {
       appointment,
       summary,
       notifications,
+    };
+  }
+
+  private normalizeHours(opensAt?: string, closesAt?: string) {
+    const parse = (value?: string) => {
+      if (!value) return null;
+      const [hourStr, minuteStr] = value.split(':');
+      const hours = Number(hourStr);
+      const minutes = Number(minuteStr ?? '0');
+      if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+      return { hours, minutes };
+    };
+
+    return {
+      opensAt: parse(opensAt ?? '09:00'),
+      closesAt: parse(closesAt ?? '19:00'),
     };
   }
 
