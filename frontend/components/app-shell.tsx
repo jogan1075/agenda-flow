@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Calendar, CalendarDays, ChartBar, LogOut, Menu, MessageSquare, Scissors, UserSquare2, Users, X } from 'lucide-react';
+import { Calendar, CalendarDays, ChartBar, LogOut, Menu, Scissors, UserSquare2, Users, X } from 'lucide-react';
 import { ReactNode, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { clearSession, getSession } from '@/lib/session';
@@ -27,12 +27,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false);
   const role = session?.role ?? 'staff';
   const hasBusiness = !!session?.businessId;
-  const canManageSettings = role === 'owner' || role === 'admin' || role === 'super_admin';
   const baseNav = hasBusiness ? nav : [];
   const navItems = isHydrated
     ? [
         ...baseNav,
-        ...(canManageSettings ? [{ href: '/configuracion', label: 'Configuracion', icon: MessageSquare }] : []),
         ...(role === 'super_admin' ? superAdminNav : []),
       ]
     : [];

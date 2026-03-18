@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
@@ -84,6 +85,12 @@ export class BusinessesController {
   ) {
     this.assertSuperAdmin(authorization);
     return this.businessesService.updateSubscriptionBySuperAdmin(id, dto);
+  }
+
+  @Delete('admin/:id')
+  deleteBusiness(@Headers('authorization') authorization: string | undefined, @Param('id') id: string) {
+    this.assertSuperAdmin(authorization);
+    return this.businessesService.deleteBySuperAdmin(id);
   }
 
   @Get(':id')

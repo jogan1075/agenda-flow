@@ -147,6 +147,14 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+  deleteBusinessBySuperAdmin(id: string, token: string) {
+    return request(`/businesses/admin/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
   updateBusiness(id: string, payload: Record<string, unknown>) {
     return request(`/businesses/${id}`, {
       method: 'PATCH',

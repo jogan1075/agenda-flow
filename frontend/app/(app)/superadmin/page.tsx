@@ -23,20 +23,39 @@ export default function SuperAdminPage() {
   const session = getSession();
   const token = session?.token ?? '';
   const role = session?.role ?? 'staff';
+  const [activeMenu, setActiveMenu] = useState<'access' | 'catalog' | 'subscriptions' | 'config'>('access');
   const [activeBusinessId, setActiveBusinessId] = useState(session?.businessId ?? '');
   const [selectedBusinessId, setSelectedBusinessId] = useState(session?.businessId ?? '');
-
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [ownerPassword, setOwnerPassword] = useState('');
   const [message, setMessage] = useState('');
 
   const [categoryLabel, setCategoryLabel] = useState('');
   const [categoryKey, setCategoryKey] = useState('');
   const [subcategoryDrafts, setSubcategoryDrafts] = useState<Record<string, string>>({});
 
+  const [businessName, setBusinessName] = useState('');
+  const [businessEmail, setBusinessEmail] = useState('');
+  const [businessPhone, setBusinessPhone] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [businessOwnerEmail, setBusinessOwnerEmail] = useState('');
+  const [businessCategory, setBusinessCategory] = useState('');
+  const [businessSubcategory, setBusinessSubcategory] = useState('');
+
   const [businessDrafts, setBusinessDrafts] = useState<
     Record<string, { billingPlan: BillingPlan; billingStatus: BillingStatus; isEnabled: boolean }>
+  >({});
+  const [businessInfoDrafts, setBusinessInfoDrafts] = useState<
+    Record<
+      string,
+      {
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        businessCategory?: string;
+        businessSubcategory?: string;
+      }
+    >
   >({});
 
   const canAccess = role === 'super_admin';
@@ -73,6 +92,23 @@ export default function SuperAdminPage() {
       }
       return next;
     });
+
+    setBusinessInfoDrafts((prev) => {
+      const next = { ...prev };
+      for (const business of businesses) {
+        const id = String(business._id ?? '');
+        if (!id || next[id]) continue;
+        next[id] = {
+          name: String(business.name ?? ''),
+          email: String(business.email ?? ''),
+          phone: business.phone ? String(business.phone) : '',
+          address: business.address ? String(business.address) : '',
+          businessCategory: business.businessCategory ? String(business.businessCategory) : '',
+          businessSubcategory: business.businessSubcategory ? String(business.businessSubcategory) : '',
+        };
+      }
+      return next;
+    });
   }, [businessesQuery.data]);
 
   const refreshSuperAdminData = async () => {
@@ -82,28 +118,6 @@ export default function SuperAdminPage() {
       queryClient.invalidateQueries({ queryKey: ['business-type-catalog'] }),
     ]);
   };
-
-  const createOwnerMutation = useMutation({
-    mutationFn: () =>
-      api.createOwnerBySuperAdmin(
-        {
-          fullName: fullName.trim(),
-          email: email.trim().toLowerCase(),
-          password,
-        },
-        token,
-      ),
-    onSuccess: () => {
-      setMessage('Cuenta owner creada correctamente.');
-      setFullName('');
-      setEmail('');
-      setPassword('');
-    },
-    onError: (error) => {
-      const detail = error instanceof Error ? error.message : 'Error desconocido';
-      setMessage(`No se pudo crear la cuenta: ${detail}`);
-    },
-  });
 
   const createCategoryMutation = useMutation({
     mutationFn: () => api.createBusinessCategory({ key: categoryKey.trim() || undefined, label: categoryLabel.trim() }, token),
@@ -157,11 +171,98 @@ export default function SuperAdminPage() {
     },
   });
 
+  const updateBusinessInfoMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Record<string, unknown> }) => api.updateBusiness(id, payload),
+    onSuccess: async () => {
+      setMessage('Negocio actualizado correctamente.');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo actualizar negocio: ${detail}`);
+    },
+  });
+
+  const deleteBusinessMutation = useMutation({
+    mutationFn: (id: string) => api.deleteBusinessBySuperAdmin(id, token),
+    onSuccess: async () => {
+      setMessage('Negocio eliminado correctamente.');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo eliminar negocio: ${detail}`);
+    },
+  });
+
+  const createAccessAndBusinessMutation = useMutation({
+    mutationFn: async () => {
+      const ownerPayload = {
+        fullName: businessName.trim(),
+        email: businessEmail.trim().toLowerCase(),
+        password: ownerPassword,
+      };
+
+      const businessPayload = {
+        ownerEmail: businessOwnerEmail.trim() || ownerPayload.email || undefined,
+        name: businessName.trim(),
+        email: businessEmail.trim() || undefined,
+        phone: businessPhone.trim() || undefined,
+        address: businessAddress.trim() || undefined,
+        businessCategory: businessCategory || undefined,
+        businessSubcategory: businessSubcategory || undefined,
+      };
+
+      try {
+        await api.createOwnerBySuperAdmin(ownerPayload, token);
+      } catch (error) {
+        const detail = error instanceof Error ? error.message : '';
+        const normalized = detail.toLowerCase();
+        if (!normalized.includes('existe') && !normalized.includes('already')) {
+          throw error;
+        }
+      }
+
+      return api.createBusiness(businessPayload);
+    },
+    onSuccess: async () => {
+      setMessage('Accesos y negocio creados correctamente.');
+      setOwnerPassword('');
+      setBusinessName('');
+      setBusinessEmail('');
+      setBusinessPhone('');
+      setBusinessAddress('');
+      setBusinessOwnerEmail('');
+      setBusinessCategory('');
+      setBusinessSubcategory('');
+      await refreshSuperAdminData();
+    },
+    onError: (error) => {
+      const detail = error instanceof Error ? error.message : 'Error desconocido';
+      setMessage(`No se pudo crear accesos y negocio: ${detail}`);
+    },
+  });
+
   const catalogItems = useMemo(() => catalogQuery.data ?? [], [catalogQuery.data]);
   const businesses = useMemo(() => businessesQuery.data ?? [], [businessesQuery.data]);
   const businessNameById = useMemo(
     () => new Map(businesses.map((business) => [String(business._id ?? ''), String(business.name ?? '-')])),
     [businesses],
+  );
+  const businessCategoryOptions = useMemo(
+    () =>
+      catalogItems.map((item) => ({
+        key: String(item.key ?? ''),
+        label: String(item.label ?? item.key ?? ''),
+        subcategories: Array.isArray(item.subcategories)
+          ? (item.subcategories as Array<unknown>).map((value) => String(value))
+          : [],
+      })),
+    [catalogItems],
+  );
+  const selectedCategory = useMemo(
+    () => businessCategoryOptions.find((item) => item.key === businessCategory),
+    [businessCategoryOptions, businessCategory],
   );
 
   if (!canAccess) {
@@ -185,302 +286,547 @@ export default function SuperAdminPage() {
         subtitle="Gestion de owners, catalogo de rubros y control de suscripciones por negocio"
       />
 
-      <Card className="space-y-3">
-        <h3 className="text-sm font-semibold text-zinc-700">Crear cuenta owner</h3>
-        <div className="grid gap-3 md:grid-cols-3">
-          <Input placeholder="Nombre completo" value={fullName} onChange={(event) => setFullName(event.target.value)} />
-          <Input placeholder="Email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          <Input
-            placeholder="Contrasena inicial"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-          />
+      <Card className="space-y-4">
+        <h3 className="text-sm font-semibold text-zinc-700">Menu de SuperAdmin</h3>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: 'access', label: 'Accesos y negocios' },
+            { key: 'catalog', label: 'Catalogo' },
+            { key: 'subscriptions', label: 'Suscripciones' },
+            { key: 'config', label: 'Configuracion' },
+          ].map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              onClick={() => setActiveMenu(item.key as typeof activeMenu)}
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                activeMenu === item.key ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-600 hover:bg-zinc-200'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
-        <Button
-          disabled={createOwnerMutation.isPending}
-          onClick={() => {
-            if (!fullName.trim() || !email.trim() || password.length < 6) {
-              setMessage('Completa nombre, email y contrasena de al menos 6 caracteres.');
-              return;
-            }
-            createOwnerMutation.mutate();
-          }}
-        >
-          Crear cuenta owner
-        </Button>
       </Card>
 
-      <Card className="space-y-4">
-        <h3 className="text-sm font-semibold text-zinc-700">Catalogo de tipos de negocio (DB)</h3>
-
-        <div className="grid gap-2 md:grid-cols-[1fr_220px_180px]">
-          <Input
-            placeholder="Nombre visible categoria (ej: Estetica y Belleza)"
-            value={categoryLabel}
-            onChange={(event) => setCategoryLabel(event.target.value)}
-          />
-          <Input
-            placeholder="Clave opcional (ej: ESTETICA_Y_BELLEZA)"
-            value={categoryKey}
-            onChange={(event) => setCategoryKey(event.target.value)}
-          />
+      {activeMenu === 'access' ? (
+        <Card className="space-y-3">
+          <h3 className="text-sm font-semibold text-zinc-700">Crear accesos + negocio</h3>
+          <p className="text-xs text-zinc-500">Al crear un negocio se crea automaticamente el acceso del owner.</p>
+          <div className="grid gap-3 md:grid-cols-2">
+            <Input
+              placeholder="Nombre del negocio"
+              value={businessName}
+              onChange={(event) => setBusinessName(event.target.value)}
+            />
+            <Input
+              placeholder="Email del negocio"
+              value={businessEmail}
+              onChange={(event) => {
+                const next = event.target.value;
+                setBusinessEmail(next);
+                if (!businessOwnerEmail) {
+                  setBusinessOwnerEmail(next);
+                }
+              }}
+            />
+            <Input placeholder="Telefono" value={businessPhone} onChange={(event) => setBusinessPhone(event.target.value)} />
+            <Input
+              placeholder="Direccion"
+              value={businessAddress}
+              onChange={(event) => setBusinessAddress(event.target.value)}
+            />
+            <Input
+              placeholder="Email del owner (opcional)"
+              value={businessOwnerEmail}
+              onChange={(event) => setBusinessOwnerEmail(event.target.value)}
+            />
+            <Select
+              value={businessCategory}
+              onChange={(event) => {
+                setBusinessCategory(event.target.value);
+                setBusinessSubcategory('');
+              }}
+            >
+              <option value="">Selecciona categoria</option>
+              {businessCategoryOptions.map((item) => (
+                <option key={item.key} value={item.key}>
+                  {item.label}
+                </option>
+              ))}
+            </Select>
+            <Select value={businessSubcategory} onChange={(event) => setBusinessSubcategory(event.target.value)}>
+              <option value="">Selecciona subcategoria</option>
+              {(selectedCategory?.subcategories ?? []).map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </Select>
+            <Input
+              placeholder="Contrasena inicial (min 6)"
+              type="password"
+              value={ownerPassword}
+              onChange={(event) => setOwnerPassword(event.target.value)}
+            />
+          </div>
           <Button
-            disabled={createCategoryMutation.isPending}
+            disabled={createAccessAndBusinessMutation.isPending}
             onClick={() => {
-              if (!categoryLabel.trim()) {
-                setMessage('Ingresa nombre de categoria.');
+              if (!businessName.trim()) {
+                setMessage('Ingresa nombre del negocio.');
                 return;
               }
-              createCategoryMutation.mutate();
+              if (!businessEmail.trim() || ownerPassword.length < 6) {
+                setMessage('Completa email del negocio y contrasena de al menos 6 caracteres.');
+                return;
+              }
+              createAccessAndBusinessMutation.mutate();
             }}
           >
-            Agregar categoria
+            Crear accesos y negocio
           </Button>
-        </div>
 
-        <div className="space-y-3">
-          {catalogItems.map((item) => {
-            const key = String(item.key ?? '');
-            const label = String(item.label ?? key);
-            const isActive = item.isActive !== false;
-            const subcategories = Array.isArray(item.subcategories)
-              ? (item.subcategories as Array<unknown>).map((value) => String(value))
-              : [];
+          <div className="mt-6 space-y-3">
+            <h4 className="text-sm font-semibold text-zinc-700">Negocios creados</h4>
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead className="text-left text-zinc-500">
+                  <tr>
+                    <th className="py-2">Nombre</th>
+                    <th>Email</th>
+                    <th>Telefono</th>
+                    <th>Categoria</th>
+                    <th>Subcategoria</th>
+                    <th>Accion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {businesses.map((business) => {
+                    const id = String(business._id ?? '');
+                    const draft = businessInfoDrafts[id];
+                    const categoryOptions = businessCategoryOptions;
+                    const subOptions =
+                      categoryOptions.find((item) => item.key === (draft?.businessCategory ?? ''))?.subcategories ?? [];
 
-            return (
-              <div key={key} className="rounded-xl border border-zinc-100 p-3">
-                <div className="grid gap-2 md:grid-cols-[1fr_220px_160px]">
-                  <Input
-                    value={label}
-                    onChange={(event) => {
-                      const nextLabel = event.target.value;
-                      const current = catalogItems.find((row) => String(row.key) === key);
-                      if (!current) return;
-                      current.label = nextLabel;
-                      queryClient.setQueryData(['superadmin-catalog'], [...catalogItems]);
-                    }}
-                  />
-                  <Input value={key} disabled />
-                  <label className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-xs text-zinc-600">
-                    Activa
-                    <input
-                      type="checkbox"
-                      checked={isActive}
+                    if (!draft) return null;
+
+                    return (
+                      <tr key={id} className="border-t border-zinc-100 align-top">
+                        <td className="py-2">
+                          <Input
+                            value={draft.name}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, name: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Input
+                            value={draft.email}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, email: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Input
+                            value={draft.phone ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, phone: event.target.value },
+                              }))
+                            }
+                          />
+                        </td>
+                        <td>
+                          <Select
+                            value={draft.businessCategory ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: {
+                                  ...draft,
+                                  businessCategory: event.target.value,
+                                  businessSubcategory: '',
+                                },
+                              }))
+                            }
+                          >
+                            <option value="">Categoria</option>
+                            {categoryOptions.map((item) => (
+                              <option key={item.key} value={item.key}>
+                                {item.label}
+                              </option>
+                            ))}
+                          </Select>
+                        </td>
+                        <td>
+                          <Select
+                            value={draft.businessSubcategory ?? ''}
+                            onChange={(event) =>
+                              setBusinessInfoDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, businessSubcategory: event.target.value },
+                              }))
+                            }
+                          >
+                            <option value="">Subcategoria</option>
+                            {subOptions.map((item) => (
+                              <option key={item} value={item}>
+                                {item}
+                              </option>
+                            ))}
+                          </Select>
+                        </td>
+                        <td className="space-y-2">
+                          <Button
+                            variant="outline"
+                            disabled={updateBusinessInfoMutation.isPending}
+                            onClick={() =>
+                              updateBusinessInfoMutation.mutate({
+                                id,
+                                payload: {
+                                  name: draft.name.trim(),
+                                  email: draft.email.trim(),
+                                  phone: draft.phone?.trim() || undefined,
+                                  address: draft.address?.trim() || undefined,
+                                  businessCategory: draft.businessCategory || undefined,
+                                  businessSubcategory: draft.businessSubcategory || undefined,
+                                },
+                              })
+                            }
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            disabled={deleteBusinessMutation.isPending}
+                            onClick={() => {
+                              if (!confirm(`Eliminar negocio \"${draft.name}\"?`)) return;
+                              deleteBusinessMutation.mutate(id);
+                            }}
+                          >
+                            Eliminar
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
+      ) : null}
+
+      {activeMenu === 'catalog' ? (
+        <Card className="space-y-4">
+          <h3 className="text-sm font-semibold text-zinc-700">Catalogo de tipos de negocio (DB)</h3>
+
+          <div className="grid gap-2 md:grid-cols-[1fr_220px_180px]">
+            <Input
+              placeholder="Nombre visible categoria (ej: Estetica y Belleza)"
+              value={categoryLabel}
+              onChange={(event) => setCategoryLabel(event.target.value)}
+            />
+            <Input
+              placeholder="Clave opcional (ej: ESTETICA_Y_BELLEZA)"
+              value={categoryKey}
+              onChange={(event) => setCategoryKey(event.target.value)}
+            />
+            <Button
+              disabled={createCategoryMutation.isPending}
+              onClick={() => {
+                if (!categoryLabel.trim()) {
+                  setMessage('Ingresa nombre de categoria.');
+                  return;
+                }
+                createCategoryMutation.mutate();
+              }}
+            >
+              Agregar categoria
+            </Button>
+          </div>
+
+          <div className="space-y-3">
+            {catalogItems.map((item) => {
+              const key = String(item.key ?? '');
+              const label = String(item.label ?? key);
+              const isActive = item.isActive !== false;
+              const subcategories = Array.isArray(item.subcategories)
+                ? (item.subcategories as Array<unknown>).map((value) => String(value))
+                : [];
+
+              return (
+                <div key={key} className="rounded-xl border border-zinc-100 p-3">
+                  <div className="grid gap-2 md:grid-cols-[1fr_220px_160px]">
+                    <Input
+                      value={label}
+                      onChange={(event) => {
+                        const nextLabel = event.target.value;
+                        const current = catalogItems.find((row) => String(row.key) === key);
+                        if (!current) return;
+                        current.label = nextLabel;
+                        queryClient.setQueryData(['superadmin-catalog'], [...catalogItems]);
+                      }}
+                    />
+                    <Input value={key} disabled />
+                    <label className="flex items-center justify-between rounded-lg border border-zinc-200 px-3 py-2 text-xs text-zinc-600">
+                      Activa
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={(event) =>
+                          updateCategoryMutation.mutate({ key, payload: { isActive: event.target.checked } })
+                        }
+                      />
+                    </label>
+                  </div>
+
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {subcategories.map((subcategory) => (
+                      <span
+                        key={`${key}-${subcategory}`}
+                        className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700"
+                      >
+                        {subcategory}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 grid gap-2 md:grid-cols-[1fr_200px_200px]">
+                    <Input
+                      placeholder="Nueva subcategoria"
+                      value={subcategoryDrafts[key] ?? ''}
                       onChange={(event) =>
-                        updateCategoryMutation.mutate({ key, payload: { isActive: event.target.checked } })
+                        setSubcategoryDrafts((prev) => ({
+                          ...prev,
+                          [key]: event.target.value,
+                        }))
                       }
                     />
-                  </label>
-                </div>
-
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {subcategories.map((subcategory) => (
-                    <span key={`${key}-${subcategory}`} className="rounded-full bg-zinc-100 px-3 py-1 text-xs text-zinc-700">
-                      {subcategory}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-3 grid gap-2 md:grid-cols-[1fr_200px_200px]">
-                  <Input
-                    placeholder="Nueva subcategoria"
-                    value={subcategoryDrafts[key] ?? ''}
-                    onChange={(event) =>
-                      setSubcategoryDrafts((prev) => ({
-                        ...prev,
-                        [key]: event.target.value,
-                      }))
-                    }
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const name = (subcategoryDrafts[key] ?? '').trim();
-                      if (!name) {
-                        setMessage('Ingresa subcategoria para agregar.');
-                        return;
-                      }
-
-                      addSubcategoryMutation.mutate({ categoryKey: key, name });
-                      setSubcategoryDrafts((prev) => ({ ...prev, [key]: '' }));
-                    }}
-                  >
-                    Agregar subcategoria
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      const current = catalogItems.find((row) => String(row.key) === key);
-                      if (!current) return;
-
-                      updateCategoryMutation.mutate({
-                        key,
-                        payload: {
-                          label: String(current.label ?? ''),
-                          subcategories,
-                        },
-                      });
-                    }}
-                  >
-                    Guardar categoria
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-
-      <Card className="space-y-3">
-        <h3 className="text-sm font-semibold text-zinc-700">Suscripciones y bloqueo por no pago</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead className="text-left text-zinc-500">
-              <tr>
-                <th className="py-2">Negocio</th>
-                <th>Email</th>
-                <th>Plan</th>
-                <th>Estado</th>
-                <th>Habilitado</th>
-                <th>Accion</th>
-              </tr>
-            </thead>
-            <tbody>
-              {businesses.map((business) => {
-                const id = String(business._id ?? '');
-                const draft = businessDrafts[id] ?? {
-                  billingPlan: 'trial' as BillingPlan,
-                  billingStatus: 'trialing' as BillingStatus,
-                  isEnabled: true,
-                };
-
-                return (
-                  <tr key={id} className="border-t border-zinc-100">
-                    <td className="py-2">{String(business.name ?? '-')}</td>
-                    <td>{String(business.email ?? '-')}</td>
-                    <td>
-                      <Select
-                        value={draft.billingPlan}
-                        onChange={(event) =>
-                          setBusinessDrafts((prev) => ({
-                            ...prev,
-                            [id]: { ...draft, billingPlan: event.target.value as BillingPlan },
-                          }))
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const name = (subcategoryDrafts[key] ?? '').trim();
+                        if (!name) {
+                          setMessage('Ingresa subcategoria para agregar.');
+                          return;
                         }
-                      >
-                        {billingPlans.map((plan) => (
-                          <option key={plan} value={plan}>
-                            {plan}
-                          </option>
-                        ))}
-                      </Select>
-                    </td>
-                    <td>
-                      <Select
-                        value={draft.billingStatus}
-                        onChange={(event) =>
-                          setBusinessDrafts((prev) => ({
-                            ...prev,
-                            [id]: { ...draft, billingStatus: event.target.value as BillingStatus },
-                          }))
-                        }
-                      >
-                        {billingStatuses.map((status) => (
-                          <option key={status} value={status}>
-                            {status}
-                          </option>
-                        ))}
-                      </Select>
-                    </td>
-                    <td>
-                      <label className="flex items-center gap-2 text-xs text-zinc-600">
-                        <input
-                          type="checkbox"
-                          checked={draft.isEnabled}
+
+                        addSubcategoryMutation.mutate({ categoryKey: key, name });
+                        setSubcategoryDrafts((prev) => ({ ...prev, [key]: '' }));
+                      }}
+                    >
+                      Agregar subcategoria
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const current = catalogItems.find((row) => String(row.key) === key);
+                        if (!current) return;
+
+                        updateCategoryMutation.mutate({
+                          key,
+                          payload: {
+                            label: String(current.label ?? ''),
+                            subcategories,
+                          },
+                        });
+                      }}
+                    >
+                      Guardar categoria
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      ) : null}
+
+      {activeMenu === 'subscriptions' ? (
+        <Card className="space-y-3">
+          <h3 className="text-sm font-semibold text-zinc-700">Suscripciones y bloqueo por no pago</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="text-left text-zinc-500">
+                <tr>
+                  <th className="py-2">Negocio</th>
+                  <th>Email</th>
+                  <th>Plan</th>
+                  <th>Estado</th>
+                  <th>Habilitado</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                {businesses.map((business) => {
+                  const id = String(business._id ?? '');
+                  const draft = businessDrafts[id] ?? {
+                    billingPlan: 'trial' as BillingPlan,
+                    billingStatus: 'trialing' as BillingStatus,
+                    isEnabled: true,
+                  };
+
+                  return (
+                    <tr key={id} className="border-t border-zinc-100">
+                      <td className="py-2">{String(business.name ?? '-')}</td>
+                      <td>{String(business.email ?? '-')}</td>
+                      <td>
+                        <Select
+                          value={draft.billingPlan}
                           onChange={(event) =>
                             setBusinessDrafts((prev) => ({
                               ...prev,
-                              [id]: { ...draft, isEnabled: event.target.checked },
+                              [id]: { ...draft, billingPlan: event.target.value as BillingPlan },
                             }))
                           }
-                        />
-                        Activo
-                      </label>
-                    </td>
-                    <td>
-                      <Button
-                        variant="outline"
-                        disabled={updateBusinessMutation.isPending}
-                        onClick={() =>
-                          updateBusinessMutation.mutate({
-                            id,
-                            payload: {
-                              billingPlan: draft.billingPlan,
-                              billingStatus: draft.billingStatus,
-                              isEnabled: draft.isEnabled,
-                            },
-                          })
-                        }
-                      >
-                        Guardar
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+                        >
+                          {billingPlans.map((plan) => (
+                            <option key={plan} value={plan}>
+                              {plan}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td>
+                        <Select
+                          value={draft.billingStatus}
+                          onChange={(event) =>
+                            setBusinessDrafts((prev) => ({
+                              ...prev,
+                              [id]: { ...draft, billingStatus: event.target.value as BillingStatus },
+                            }))
+                          }
+                        >
+                          {billingStatuses.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td>
+                        <label className="flex items-center gap-2 text-xs text-zinc-600">
+                          <input
+                            type="checkbox"
+                            checked={draft.isEnabled}
+                            onChange={(event) =>
+                              setBusinessDrafts((prev) => ({
+                                ...prev,
+                                [id]: { ...draft, isEnabled: event.target.checked },
+                              }))
+                            }
+                          />
+                          Activo
+                        </label>
+                      </td>
+                      <td>
+                        <Button
+                          variant="outline"
+                          disabled={updateBusinessMutation.isPending}
+                          onClick={() =>
+                            updateBusinessMutation.mutate({
+                              id,
+                              payload: {
+                                billingPlan: draft.billingPlan,
+                                billingStatus: draft.billingStatus,
+                                isEnabled: draft.isEnabled,
+                              },
+                            })
+                          }
+                        >
+                          Guardar
+                        </Button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      ) : null}
 
-      <Card className="space-y-3">
-        <h3 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h3>
-        <p className="text-sm text-zinc-600">
-          Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
-        </p>
-        <div className="grid gap-3 md:grid-cols-[1fr_220px_220px]">
-          <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
-            <option value="">Selecciona un negocio</option>
-            {businesses.map((business) => (
-              <option key={String(business._id)} value={String(business._id)}>
-                {String(business.name ?? business.email ?? business._id)}
-              </option>
-            ))}
-          </Select>
-          <Button
-            disabled={!selectedBusinessId}
-            onClick={() => {
-              if (!session) return;
-              setSession({ ...session, businessId: selectedBusinessId });
-              setActiveBusinessId(selectedBusinessId);
-              setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
-              window.location.href = '/dashboard';
-            }}
-          >
-            Activar contexto
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (!session) return;
-              setSession({ ...session, businessId: '' });
-              setActiveBusinessId('');
-              setSelectedBusinessId('');
-              setMessage('Contexto multinegocio limpiado.');
-            }}
-          >
-            Limpiar contexto
-          </Button>
-        </div>
-        {activeBusinessId ? (
+      {activeMenu === 'config' ? (
+        <Card className="space-y-3">
+          <h3 className="text-sm font-semibold text-zinc-700">Configuracion del negocio</h3>
           <p className="text-xs text-zinc-500">
-            Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+            Accede a los submenus de configuracion para gestionar sucursales, horarios, pagos, WhatsApp y multinegocio.
           </p>
-        ) : (
-          <p className="text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
-        )}
-      </Card>
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
+            {[
+              { label: 'General', section: 'general' },
+              { label: 'Sucursales', section: 'sucursales' },
+              { label: 'Horarios', section: 'horarios' },
+              { label: 'Pagos', section: 'pagos' },
+              { label: 'WhatsApp', section: 'whatsapp' },
+              { label: 'Multinegocio', section: 'multinegocio' },
+            ].map((item) => (
+              <Button key={item.section} variant="outline" onClick={() => router.push('/configuracion')}>
+                {item.label}
+              </Button>
+            ))}
+          </div>
+          <div className="mt-4 rounded-xl border border-zinc-100 p-4">
+            <h4 className="text-sm font-semibold text-zinc-700">Modo multinegocio (SuperAdmin)</h4>
+            <p className="text-xs text-zinc-500">
+              Selecciona un negocio para administrar su agenda y configuraciones desde el mismo sistema.
+            </p>
+            <div className="mt-3 grid gap-3 md:grid-cols-[1fr_220px_220px]">
+              <Select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}>
+                <option value="">Selecciona un negocio</option>
+                {businesses.map((business) => (
+                  <option key={String(business._id)} value={String(business._id)}>
+                    {String(business.name ?? business.email ?? business._id)}
+                  </option>
+                ))}
+              </Select>
+              <Button
+                disabled={!selectedBusinessId}
+                onClick={() => {
+                  if (!session) return;
+                  setSession({ ...session, businessId: selectedBusinessId });
+                  setActiveBusinessId(selectedBusinessId);
+                  setMessage(`Contexto activo: ${businessNameById.get(selectedBusinessId) ?? selectedBusinessId}`);
+                  window.location.href = '/dashboard';
+                }}
+              >
+                Activar contexto
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (!session) return;
+                  setSession({ ...session, businessId: '' });
+                  setActiveBusinessId('');
+                  setSelectedBusinessId('');
+                  setMessage('Contexto multinegocio limpiado.');
+                }}
+              >
+                Limpiar contexto
+              </Button>
+            </div>
+            {activeBusinessId ? (
+              <p className="mt-2 text-xs text-zinc-500">
+                Negocio activo: {businessNameById.get(activeBusinessId) ?? activeBusinessId}
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-zinc-400">Sin negocio activo seleccionado.</p>
+            )}
+          </div>
+        </Card>
+      ) : null}
 
       {message ? <p className="rounded-lg bg-zinc-100 p-2 text-xs text-zinc-700">{message}</p> : null}
     </div>
