@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -40,6 +41,20 @@ async function bootstrap() {
   );
 
   app.setGlobalPrefix('api');
+
+  if (process.env.SWAGGER_DISABLED !== 'true') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('AgendaFlow API')
+      .setDescription('API del backend de reservas')
+      .setVersion('1.0.0')
+      .addBearerAuth()
+      .addServer('/api')
+      .build();
+
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, swaggerDocument);
+  }
+
   const port = Number(process.env.PORT ?? 3000);
   await app.listen(port);
   // eslint-disable-next-line no-console
