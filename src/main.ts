@@ -48,7 +48,7 @@ async function bootstrap() {
       .setDescription('API del backend de reservas')
       .setVersion('1.0.0')
       .addBearerAuth()
-      .addServer('/api')
+      .addServer('/')
       .build();
 
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
